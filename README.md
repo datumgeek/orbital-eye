@@ -36,7 +36,15 @@ A playground for orbital visualizations, calculations, and experiments
 ## Add Library `@orbital-eye/e01-visualize`
 
     nx g @nx/react:library --name=orbital-eye-e01-visualize --bundler=rollup --directory=libs/orbital-eye/e01-visualize --component=false --importPath=@orbital-eye/e01-visualize --projectNameAndRootFormat=as-provided --publishable=true --style=scss --unitTestRunner=jest
-    
+
+## Add ThreeJS Visualization
+
+     npm install @react-three/fiber @react-three/drei @mui/material @emotion/react @emotion/styled --save
+
+## Boom shaka-laka !! :)
+
+![image](./apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-01.png)
+
 # Nx Stuff
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
