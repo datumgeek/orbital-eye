@@ -1,0 +1,29 @@
+{
+  "name": "orbital-eye-e01-visualize",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/orbital-eye/e01-visualize/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/orbital-eye/e01-visualize",
+        "tsConfig": "libs/orbital-eye/e01-visualize/tsconfig.lib.json",
+        "project": "libs/orbital-eye/e01-visualize/package.json",
+        "entryFile": "libs/orbital-eye/e01-visualize/src/index.ts",
+        "external": ["react", "react-dom", "react/jsx-runtime"],
+        "rollupConfig": "@nx/react/plugins/bundle-rollup",
+        "compiler": "babel",
+        "assets": [
+          {
+            "glob": "libs/orbital-eye/e01-visualize/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    }
+  }
+}

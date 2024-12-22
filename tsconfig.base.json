@@ -14,7 +14,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@orbital-eye/e01-visualize": [
+        "libs/orbital-eye/e01-visualize/src/index.ts"
+      ]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
