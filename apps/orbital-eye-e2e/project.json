@@ -1,0 +1,9 @@
+{
+  "name": "orbital-eye-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/orbital-eye-e2e/src",
+  "tags": [],
+  "implicitDependencies": ["orbital-eye"],
+  "// targets": "to see all targets run: nx show project orbital-eye-e2e --web",
+  "targets": {}
+}
