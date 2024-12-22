@@ -1,13 +1,12 @@
 import styles from './index.module.scss';
+import {OrbitVisualizer} from '@orbital-eye/e01-visualize';
 
 export function Index() {
-  /*
-   * Replace the elements below with your own.
-   *
-   * Note: The corresponding styles are in the ./index.scss file.
-   */
   return (
-    <div>hello orbital-eye :)</div>
+    <div>
+      <div>hello orbital-eye :)</div>
+      <OrbitVisualizer />
+    </div>
   );
 }
 
