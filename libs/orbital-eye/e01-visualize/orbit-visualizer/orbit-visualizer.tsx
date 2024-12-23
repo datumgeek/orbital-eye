@@ -60,29 +60,44 @@ const OrbitVisualization: React.FC<{ parameters: OrbitalParameters }> = ({
 
   const inclinationRad = (inclination * Math.PI) / 180;
   const raanRad = (raan * Math.PI) / 180;
-  const argumentOfPerigeeRad = (argumentOfPerigee * Math.PI) / 180;
+  const argumentOfPerigeeRad = ((argumentOfPerigee + 90) * Math.PI) / 180;
   const trueAnomalyRad = (trueAnomaly * Math.PI) / 180;
 
+  // Semi-major and Semi-minor Axes
   const semiMajorAxis = 5; // Adjust as needed
   const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity ** 2);
 
   // Focal Offset
   const focalOffset = (1 - eccentricity ** 2) * semiMajorAxis;
 
-  // Node Positions (in the orbital plane)
+  // Semi-latus rectum (used for node distance)
+  const semiLatusRectum = semiMajorAxis * (1 - eccentricity ** 2);
+
+  // Calculate True Anomaly at Ascending and Descending Nodes
+  // These occur where the orbital plane intersects the equatorial plane (z = 0)
+  // Ascending node (true anomaly = 90° - ω)
+  // Descending node (true anomaly = 270° - ω)
+  const trueAnomalyAscendingNode = -argumentOfPerigeeRad; // 90° offset from ω
+  const trueAnomalyDescendingNode = Math.PI - argumentOfPerigeeRad; // 270° offset from ω
+
+  // Calculate Node Positions in the Orbital Plane
   const ascendingNode = new THREE.Vector3(
-    0, // Y-coordinate
-    -focalOffset, // X-coordinate
-    0 // Z-coordinate
+    (semiLatusRectum * Math.cos(trueAnomalyAscendingNode)) /
+      (1 + eccentricity * Math.cos(trueAnomalyAscendingNode)),
+    (semiLatusRectum * Math.sin(trueAnomalyAscendingNode)) /
+      (1 + eccentricity * Math.cos(trueAnomalyAscendingNode)),
+    0
   );
 
   const descendingNode = new THREE.Vector3(
-    0, // Y-coordinate
-    focalOffset, // X-coordinate
-    0 // Z-coordinate
+    (semiLatusRectum * Math.cos(trueAnomalyDescendingNode)) /
+      (1 + eccentricity * Math.cos(trueAnomalyDescendingNode)),
+    (semiLatusRectum * Math.sin(trueAnomalyDescendingNode)) /
+      (1 + eccentricity * Math.cos(trueAnomalyDescendingNode)),
+    0
   );
 
-  // Calculate Midpoint of line of nodes
+  // Calculate Midpoint of Line of Nodes
   const midpointLineOfNodes = new THREE.Vector3()
     .addVectors(ascendingNode, descendingNode)
     .multiplyScalar(0.5);
@@ -96,10 +111,9 @@ const OrbitVisualization: React.FC<{ parameters: OrbitalParameters }> = ({
     .normalize();
   const quaternionLineOfNodes = new THREE.Quaternion();
   quaternionLineOfNodes.setFromUnitVectors(
-    new THREE.Vector3(0, 1, 0),
-    directionLineOfNodes
-  ); // Align Y-axis of cylinder to direction vector
-
+    new THREE.Vector3(0, 1, 0), // Y-axis is the cylinder's default direction
+    directionLineOfNodes // Direction of the line of nodes
+  );
   // Create Elliptical Path
   const points = [];
   const numPoints = 100;
@@ -127,7 +141,7 @@ const OrbitVisualization: React.FC<{ parameters: OrbitalParameters }> = ({
   const raanMatrix = new THREE.Matrix4().makeRotationZ(raanRad); // RAAN: Rotate orbital plane around Z-axis
   const inclinationMatrix = new THREE.Matrix4().makeRotationY(inclinationRad); // Inclination: Rotate around line of nodes
   const argumentMatrix = new THREE.Matrix4().makeRotationZ(
-    argumentOfPerigeeRad
+    argumentOfPerigeeRad - Math.PI / 2
   ); // Argument of Perigee: Rotate within orbital plane
 
   // Apply Rotations
