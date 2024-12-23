@@ -12,6 +12,8 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
+  trailingSlash: true,
+  basePath: '/orbital-eye'
 };
 
 const plugins = [

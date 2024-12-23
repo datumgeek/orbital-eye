@@ -97,9 +97,125 @@ These parameters work together to describe the shape, orientation, and position 
 
 ![image](./apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-05.png)
 
-Here's a detailed explanation for your README:
+## Publish orbital-eye App to GitHub Pages
+
+Publishing the orbital-eye Next.js app from an NX monorepo to GitHub Pages involves additional considerations because Next.js apps are dynamic by nature, but they can be exported as static websites using the `next export` command. Below is step-by-step guide:
 
 ---
+
+### **1. Prerequisites**
+- Ensure your app is fully static or can be exported using `next export`.
+- You have a GitHub repository set up for your project.
+
+---
+
+### **2. Install `gh-pages` Package**
+Install the `gh-pages` package to simplify deployment to GitHub Pages:
+
+```bash
+npm install --save-dev gh-pages
+```
+
+---
+
+### **3. Update Next.js App for Static Export**
+1. Open the `next.config.js` file in your Next.js app directory (`apps/orbital-eye`).
+2. Add the `exportTrailingSlash` and `basePath` configuration:
+
+```javascript
+const nextConfig = {
+  nx: {
+    // Set this to true if you would like to use SVGR
+    // See: https://github.com/gregberge/svgr
+    svgr: false,
+  },
+  trailingSlash: true,
+  basePath: '/orbital-eye'
+};
+```
+
+This ensures the app can be statically exported and hosted under the `/` route of your GitHub Pages site.
+
+---
+
+### **4. Configure `project.json` for Static Export**
+Update the `project.json` for your Next.js app (`apps/orbital-eye/project.json`) to include the static export step:
+
+```json
+{
+  "targets": {
+    "build": {
+      "executor": "@nrwl/next:build",
+      "options": {
+        "outputPath": "dist/apps/orbital-eye",
+        "basePath": "/orbital-eye"
+      }
+    },
+    "export": {
+      "executor": "@nrwl/next:export",
+      "options": {
+        "buildTarget": "orbital-eye:build",
+        "outputPath": "dist/apps/orbital-eye"
+      }
+    }
+  }
+}
+```
+
+---
+
+### **5. Add a Deploy Script to `package.json`**
+Add a `deploy` script to the root `package.json`:
+
+```json
+"scripts": {
+  "deploy": "nx export orbital-eye && gh-pages -d dist/apps/orbital-eye"
+}
+```
+
+---
+
+### **6. Set Up GitHub Repository**
+1. Go to your GitHub repository.
+2. Navigate to **Settings > Pages**.
+3. Under **Source**, select `gh-pages` branch.
+4. Save the changes.
+
+---
+
+### **7. Build and Export Your App**
+Run the following commands to build and export your app:
+
+```bash
+nx build orbital-eye
+nx export orbital-eye
+```
+
+This will generate static files in the `dist/apps/orbital-eye` directory.
+
+---
+
+### **8. Deploy to GitHub Pages**
+Run the deploy script:
+
+```bash
+npm run deploy
+```
+
+This pushes the exported static files to the `gh-pages` branch in your GitHub repository.
+
+---
+
+### **9. Verify Deployment**
+- Go to `https://datumgeek.github.io/orbital-eye/` to view your deployed site.
+- Check that all routes and assets load correctly.
+
+---
+
+### **10. Automate Deployment (Optional)**
+You can automate this process using GitHub Actions:
+1. Create a new workflow file at `.github/workflows/deploy.yml`.
+2. Use a workflow that builds, exports, and deploys your Next.js app to GitHub Pages.
 
 ## OrbitVisualizer Component: Interactive 3D Orbital Simulation
 
