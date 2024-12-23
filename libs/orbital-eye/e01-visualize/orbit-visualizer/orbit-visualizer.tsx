@@ -67,8 +67,22 @@ const OrbitVisualization: React.FC<{ parameters: OrbitalParameters }> = ({
   const semiMajorAxis = 5; // Adjust as needed
   const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity ** 2);
 
+  // Major Axis: Length is 2 * semi-major axis
+  const majorAxisLength = 2 * semiMajorAxis;
+
+  // Minor Axis: Length is 2 * semi-minor axis
+  const minorAxisLength = 2 * semiMinorAxis;
+
+  // Orientation for Axes
+  const majorAxisQuaternion = new THREE.Quaternion(); // No rotation needed (aligned along X-axis by default)
+  const minorAxisQuaternion = new THREE.Quaternion();
+  minorAxisQuaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 2); // Rotate 90° in the orbital plane
+
   // Focal Offset
-  const focalOffset = (1 - eccentricity ** 2) * semiMajorAxis;
+  const focalOffset = (eccentricity) * semiMajorAxis;
+
+  // Position for the Center of the Ellipse
+  const ellipseCenter = new THREE.Vector3(-focalOffset, 0, 0);
 
   // Semi-latus rectum (used for node distance)
   const semiLatusRectum = semiMajorAxis * (1 - eccentricity ** 2);
@@ -114,6 +128,7 @@ const OrbitVisualization: React.FC<{ parameters: OrbitalParameters }> = ({
     new THREE.Vector3(0, 1, 0), // Y-axis is the cylinder's default direction
     directionLineOfNodes // Direction of the line of nodes
   );
+
   // Create Elliptical Path
   const points = [];
   const numPoints = 100;
@@ -202,6 +217,24 @@ const OrbitVisualization: React.FC<{ parameters: OrbitalParameters }> = ({
         >
           <cylinderGeometry args={[0.02, 0.02, lengthLineOfNodes, 32]} />
           <meshBasicMaterial color="purple" />
+        </mesh>
+
+        {/* Major Axis */}
+        <mesh
+          position={[ellipseCenter.x, ellipseCenter.y, ellipseCenter.z]}
+          quaternion={minorAxisQuaternion}
+        >
+          <cylinderGeometry args={[0.02, 0.02, majorAxisLength, 32]} />
+          <meshBasicMaterial color="steelblue" />
+        </mesh>
+
+        {/* Minor Axis */}
+        <mesh
+          position={[ellipseCenter.x, ellipseCenter.y, ellipseCenter.z]}
+          quaternion={majorAxisQuaternion}
+        >
+          <cylinderGeometry args={[0.02, 0.02, minorAxisLength, 32]} />
+          <meshBasicMaterial color="steelblue" />
         </mesh>
       </group>
     </group>
