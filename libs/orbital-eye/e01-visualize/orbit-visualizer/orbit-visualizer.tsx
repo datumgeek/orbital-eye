@@ -14,7 +14,7 @@ interface OrbitalParameters {
 
 const AxisVisualization: React.FC = () => {
   return (
-    <group>
+    <group rotation={[-Math.PI / 2, 0, 0]}>
       {/* X-axis */}
       <group>
         <mesh position={[3, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
@@ -166,7 +166,7 @@ const OrbitVisualization: React.FC<{ parameters: OrbitalParameters }> = ({
     .multiply(argumentMatrix);
 
   return (
-    <group>
+    <group rotation={[-Math.PI / 2, 0, 0]}>
       {/* Earth */}
       <mesh position={[0, 0, 0]}>
         <sphereGeometry args={[0.5, 32, 32]} />
@@ -243,7 +243,7 @@ const OrbitVisualization: React.FC<{ parameters: OrbitalParameters }> = ({
 
 const EclipticVisualization: React.FC = () => {
   return (
-    <mesh rotation={[0, 0, Math.PI / 2]}>
+    <mesh rotation={[-Math.PI / 2, 0, Math.PI / 2]}>
       <mesh position={[0, 0, 0]}>
         <sphereGeometry args={[0.2, 32, 32]} />
         <meshBasicMaterial color="blue" />
