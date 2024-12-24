@@ -17,24 +17,24 @@ const AxisVisualization: React.FC = () => {
     <group rotation={[-Math.PI / 2, 0, 0]}>
       {/* X-axis */}
       <group>
-        <mesh position={[3, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
-          <cylinderGeometry args={[0.02, 0.02, 6, 32]} />
-          <meshBasicMaterial color="red" />
+        <mesh position={[0, -0.2, 0]} rotation={[0, 0, 0]}>
+          <cylinderGeometry args={[0.02, 0.02, 10.4, 32]} />
+          <meshBasicMaterial color="green" />
         </mesh>
-        <mesh position={[6, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
-          <coneGeometry args={[0.1, 0.3, 32]} />
-          <meshBasicMaterial color="red" />
+        <mesh position={[0, -5.4, 0]} rotation={[0, 0, 0]}>
+          <coneGeometry args={[0.1, -0.3, 32]} />
+          <meshBasicMaterial color="green" />
         </mesh>
       </group>
       {/* Y-axis */}
       <group>
-        <mesh position={[0, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-          <cylinderGeometry args={[0.02, 0.02, 10, 32]} />
-          <meshBasicMaterial color="green" />
+        <mesh position={[0.2, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <cylinderGeometry args={[0.02, 0.02, 10.4, 32]} />
+          <meshBasicMaterial color="red" />
         </mesh>
-        <mesh position={[0, -5, 0]} rotation={[0, Math.PI / 2, 0]}>
-          <coneGeometry args={[0.1, -0.3, 32]} />
-          <meshBasicMaterial color="green" />
+        <mesh position={[5.4, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <coneGeometry args={[0.1, 0.3, 32]} />
+          <meshBasicMaterial color="red" />
         </mesh>
       </group>
       {/* Z-axis */}
