@@ -1,11 +1,18 @@
 import styles from './index.module.scss';
-import {OrbitVisualizer} from '@orbital-eye/e01-visualize';
+import dynamic from 'next/dynamic';
+
+const DynamicOrbitVisualizer = dynamic(
+  () => import('@orbital-eye/e01-visualize').then((mod) => mod.OrbitVisualizer),
+  {
+    ssr: false, // Disable SSR for this component
+  }
+);
 
 export function Index() {
   return (
     <div>
       <div>hello orbital-eye :)</div>
-      <OrbitVisualizer />
+      <DynamicOrbitVisualizer />
     </div>
   );
 }

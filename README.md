@@ -2,6 +2,9 @@
 
 A playground for orbital visualizations, calculations, and experiments
 
+Try it out !!
+[https://datumgeek.github.io/orbital-eye/](https://datumgeek.github.io/orbital-eye/)
+
 ![image](./apps/orbital-eye/public/docs/images/orbital-eye.png)
 
 # Orbital Eye Recipe
