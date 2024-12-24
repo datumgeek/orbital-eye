@@ -176,6 +176,17 @@ Add a `deploy` script to the root `package.json`:
 ---
 
 ### **6. Set Up GitHub Repository**
+
+#### Create Empty gh-pages branch
+
+```bash
+git checkout --orphan gh-pages
+git reset --hard
+git commit --allow-empty -m "fresh and empty gh-pages branch"
+git push origin gh-pages
+git checkout main
+```
+
 1. Go to your GitHub repository.
 2. Navigate to **Settings > Pages**.
 3. Under **Source**, select `gh-pages` branch.

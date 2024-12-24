@@ -13,7 +13,6 @@ const nextConfig = {
     svgr: false,
   },
   trailingSlash: true,
-  basePath: '/orbital-eye'
 };
 
 const plugins = [
