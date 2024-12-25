@@ -3,6 +3,9 @@ import { View } from "@porrtal/r-api";
 import { BannerData, ShellState } from "@porrtal/r-shell";
 import { ShellMaterial } from "@porrtal/r-shell-material";
 
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-balham.css';
+
 export function PorrtalWrapper() {
   const porrtalViews: View[] = [
     {

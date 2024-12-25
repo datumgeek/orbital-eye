@@ -121,7 +121,7 @@ These parameters work together to describe the shape, orientation, and position 
 
     npm install @porrtal/r-api @porrtal/r-shell @porrtal/r-shell-material @porrtal/r-split @porrtal/r-user --legacy-peer-deps
     
-    npm install ag-grid-community ag-grid-react uuid dot-object mui-nested-menu react-measure react-use-measure react-markdown --legacy-peer-deps
+    npm install ag-grid-community@32 ag-grid-react@32 uuid dot-object mui-nested-menu react-measure react-use-measure react-markdown --legacy-peer-deps
     
     npm install --save-dev @types/uuid --legacy-peer-deps
     

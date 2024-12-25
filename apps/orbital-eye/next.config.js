@@ -14,9 +14,9 @@ const nextConfig = {
   },
   trailingSlash: true,
   // uncomment these for gh-pages deployment
-  basePath: '/orbital-eye',
-  assetPrefix: '/orbital-eye',
-  output: 'export'
+  // basePath: '/orbital-eye',
+  // assetPrefix: '/orbital-eye',
+  // output: 'export'
 };
 
 const plugins = [
