@@ -100,6 +100,12 @@ These parameters work together to describe the shape, orientation, and position 
 
 ![image](./apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-05.png)
 
+## Add Porrtal (Open-Source IDE-Like UX)
+
+### Create NextJS Page ('/portal')
+
+   nx g @nx/next:page --path=apps/orbital-eye/pages/portal --style=scss --withTests=true
+
 ## Publish orbital-eye App to GitHub Pages
 
 Publishing the orbital-eye Next.js app from an NX monorepo to GitHub Pages involves additional considerations because Next.js apps are dynamic by nature, but they can be exported as static websites using the `next export` command. Below is step-by-step guide:
