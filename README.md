@@ -139,6 +139,12 @@ These parameters work together to describe the shape, orientation, and position 
 
     nx release
 
+## Add Box Score View to Porrtal
+
+### Add Component
+
+    nx g @nx/react:component --path=libs/orbital-eye/e01-visualize/box-score --export=true --style=scss
+
 ## Publish orbital-eye App to GitHub Pages
 
 Publishing the orbital-eye Next.js app from an NX monorepo to GitHub Pages involves additional considerations because Next.js apps are dynamic by nature, but they can be exported as static websites using the `next export` command. Below is step-by-step guide:

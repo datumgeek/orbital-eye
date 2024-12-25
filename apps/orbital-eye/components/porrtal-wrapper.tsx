@@ -17,6 +17,15 @@ export function PorrtalWrapper() {
       componentName: "OrbitVisualizer",
       componentModule: () => import("@orbital-eye/e01-visualize"),
     },
+    {
+      key: "BoxScore",
+      launchAtStartup: true,
+      displayText: "Box Score",
+      paneType: "main",
+      displayIcon: "shelves",
+      componentName: "BoxScore",
+      componentModule: () => import("@orbital-eye/e01-visualize"),
+    },
   ];
   const porrtalBanner: BannerData = {
     displayText: "Orbital Eye",
