@@ -5,7 +5,7 @@ A playground for orbital visualizations, calculations, and experiments
 Try it out !!
 [https://datumgeek.github.io/orbital-eye/](https://datumgeek.github.io/orbital-eye/)
 
-<img src="./apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-02.png" alt="Orbit Visualizer" width="600">
+<img src="./apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-02.png" alt="Orbit Visualizer" width="900">
 
 ---
 
