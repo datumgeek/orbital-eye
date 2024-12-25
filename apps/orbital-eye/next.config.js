@@ -13,6 +13,7 @@ const nextConfig = {
     svgr: false,
   },
   trailingSlash: true,
+  // uncomment these for gh-pages deployment
   // basePath: '/orbital-eye',
   // assetPrefix: '/orbital-eye',
   // output: 'export'

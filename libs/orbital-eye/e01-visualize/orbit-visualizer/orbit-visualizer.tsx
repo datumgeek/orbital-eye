@@ -279,7 +279,7 @@ export const OrbitVisualizer: React.FC = () => {
     <Grid container spacing={2}>
       <Grid item xs={12} md={4}>
         <Box padding={isMobile ? 1 : 2}>
-          <Typography variant="h6">Adjust Orbital Parameters</Typography>
+          {!isMobile && <Typography variant="h6">Adjust Orbital Parameters</Typography>}
           <Box>
           {[
             { label: 'Inclination (degrees)', name: 'inclination', min: 0, max: 180, step: 1 },

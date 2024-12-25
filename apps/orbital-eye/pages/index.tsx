@@ -11,7 +11,6 @@ const DynamicOrbitVisualizer = dynamic(
 export function Index() {
   return (
     <div>
-      <div>hello orbital-eye :)</div>
       <DynamicOrbitVisualizer />
     </div>
   );
