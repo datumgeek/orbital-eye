@@ -13,9 +13,9 @@ const nextConfig = {
     svgr: false,
   },
   trailingSlash: true,
-  basePath: '/orbital-eye',
-  assetPrefix: '/orbital-eye',
-  output: 'export'
+  // basePath: '/orbital-eye',
+  // assetPrefix: '/orbital-eye',
+  // output: 'export'
 };
 
 const plugins = [

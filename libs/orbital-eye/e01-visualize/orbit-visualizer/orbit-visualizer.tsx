@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Line } from '@react-three/drei';
-import { Slider, Typography, Box, Grid } from '@mui/material';
+import { Grid, Box, Typography, Slider, useMediaQuery, useTheme } from '@mui/material';
 import * as THREE from 'three';
 
 interface OrbitalParameters {
@@ -255,6 +255,9 @@ const EclipticVisualization: React.FC = () => {
 };
 
 export const OrbitVisualizer: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [parameters, setParameters] = useState<OrbitalParameters>({
     inclination: 45,
     raan: 0,
@@ -275,58 +278,27 @@ export const OrbitVisualizer: React.FC = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={4}>
-        <Box padding={2}>
+        <Box padding={isMobile ? 1 : 2}>
           <Typography variant="h6">Adjust Orbital Parameters</Typography>
           <Box>
-            <Typography gutterBottom>Inclination (degrees)</Typography>
-            <Slider
-              value={parameters.inclination}
-              onChange={handleChange('inclination')}
-              min={0}
-              max={180}
-              step={1}
-            />
-          </Box>
-          <Box>
-            <Typography gutterBottom>RAAN (degrees)</Typography>
-            <Slider
-              value={parameters.raan}
-              onChange={handleChange('raan')}
-              min={0}
-              max={360}
-              step={1}
-            />
-          </Box>
-          <Box>
-            <Typography gutterBottom>Argument of Perigee (degrees)</Typography>
-            <Slider
-              value={parameters.argumentOfPerigee}
-              onChange={handleChange('argumentOfPerigee')}
-              min={0}
-              max={360}
-              step={1}
-            />
-          </Box>
-          <Box>
-            <Typography gutterBottom>True Anomaly (degrees)</Typography>
-            <Slider
-              value={parameters.trueAnomaly}
-              onChange={handleChange('trueAnomaly')}
-              min={0}
-              max={360}
-              step={1}
-            />
-          </Box>
-          <Box>
-            <Typography gutterBottom>Eccentricity</Typography>
-            <Slider
-              value={parameters.eccentricity}
-              onChange={handleChange('eccentricity')}
-              min={0}
-              max={1}
-              step={0.01}
-            />
-          </Box>
+          {[
+            { label: 'Inclination (degrees)', name: 'inclination', min: 0, max: 180, step: 1 },
+            { label: 'RAAN (degrees)', name: 'raan', min: 0, max: 360, step: 1 },
+            { label: 'Argument of Perigee (degrees)', name: 'argumentOfPerigee', min: 0, max: 360, step: 1 },
+            { label: 'True Anomaly (degrees)', name: 'trueAnomaly', min: 0, max: 360, step: 1 },
+            { label: 'Eccentricity', name: 'eccentricity', min: 0, max: 1, step: 0.01 },
+          ].map(({ label, name, min, max, step }) => (
+            <Box key={name} marginBottom={isMobile ? 1 : 2}>
+              <Typography variant={isMobile ? 'body2' : 'body1'}>{label}</Typography>
+              <Slider
+                value={parameters[name as keyof OrbitalParameters]}
+                onChange={handleChange(name as keyof OrbitalParameters)}
+                min={min}
+                max={max}
+                step={step}
+              />
+            </Box>
+          ))}          </Box>
         </Box>
       </Grid>
       <Grid item xs={12} md={8}>
