@@ -1,6 +1,6 @@
 {
   "name": "@orbital-eye/e01-visualize",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "dependencies": {
     "@orbital-eye/e01-visualize": "file:"
   }

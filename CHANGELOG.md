@@ -1,3 +1,14 @@
+## 0.1.1 (2024-12-25)
+
+### 🩹 Fixes
+
+- **@orbital-eye/e01-visualize:** remove package.json dependency ([277efb5](https://github.com/datumgeek/orbital-eye/commit/277efb5))
+- **@orbital-eye/e01-visualize:** fix version and add back dependency ([17383d6](https://github.com/datumgeek/orbital-eye/commit/17383d6))
+
+### ❤️ Thank You
+
+- Mike Graham
+
 ## 0.1.0 (2024-12-25)
 
 ### 🚀 Features
