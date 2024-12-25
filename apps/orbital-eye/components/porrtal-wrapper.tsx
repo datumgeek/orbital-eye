@@ -1,11 +1,29 @@
 import styles from './porrtal-wrapper.module.scss';
+import { View } from "@porrtal/r-api";
+import { BannerData, ShellState } from "@porrtal/r-shell";
+import { ShellMaterial } from "@porrtal/r-shell-material";
 
 export function PorrtalWrapper() {
+  const porrtalViews: View[] = [
+    {
+      key: "OrbitVisualizer",
+      launchAtStartup: true,
+      displayText: "Orbit Visualizer",
+      paneType: "main",
+      displayIcon: "satellite_alt",
+      componentName: "OrbitVisualizer",
+      componentModule: () => import("@orbital-eye/e01-visualize"),
+    },
+  ];
+  const porrtalBanner: BannerData = {
+    displayText: "Orbital Eye",
+    displayIcon: "public",
+    childData: []
+  };
   return (
-    <div className={styles['container']}>
-      <h1>Welcome to PorrtalWrapper!</h1>
-    </div>
-  );
-}
+    <ShellState views={porrtalViews}>
+      <ShellMaterial bannerData={porrtalBanner} />
+    </ShellState>
+  );}
 
 export default PorrtalWrapper;
