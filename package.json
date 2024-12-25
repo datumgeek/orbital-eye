@@ -18,6 +18,7 @@
     "@porrtal/r-user": "^0.17.0",
     "@react-three/drei": "^9.120.4",
     "@react-three/fiber": "^8.17.10",
+    "@tanstack/react-table": "^8.20.6",
     "ag-grid-community": "^32.3.3",
     "ag-grid-react": "^32.3.3",
     "dot-object": "^2.1.5",
