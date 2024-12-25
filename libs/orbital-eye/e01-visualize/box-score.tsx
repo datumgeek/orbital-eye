@@ -1,5 +1,5 @@
 import styles from './box-score.module.scss';
-import React, { useMemo } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import {
   useReactTable,
   ColumnDef,
@@ -18,6 +18,7 @@ import {
   Paper,
   Typography,
   TablePagination,
+  Box,
 } from '@mui/material';
 
 // Define the TypeScript interface for the data structure
@@ -131,50 +132,108 @@ const MuiTable: React.FC = () => {
   });
 
   return (
-    <TableContainer component={Paper}>
-      <Typography variant="h6" sx={{ padding: 2 }}>
+    <TableContainer
+      component={Paper}
+      sx={{ borderRadius: 2, overflow: 'hidden' }}
+    >
+      <Typography
+        variant="h6"
+        sx={{ padding: 2, backgroundColor: '#e5e5e5', color: 'black' }}
+      >
         Satellite Data (Mock)
       </Typography>
       {/* Pagination Controls */}
-      <TablePagination
-        component="div"
-        count={data.length} // Total rows
-        page={table.getState().pagination.pageIndex}
-        onPageChange={(_, newPage) => table.setPageIndex(newPage)}
-        rowsPerPage={table.getState().pagination.pageSize}
-        onRowsPerPageChange={(e) => table.setPageSize(Number(e.target.value))}
-        rowsPerPageOptions={[5, 10, 20, 50]}
-        labelDisplayedRows={({ from, to, count }) =>
-          `${from}-${to} of ${count}`
-        }
-      />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', padding: 1 }}>
+        <TablePagination
+          component="div"
+          count={data.length} // Total rows
+          page={table.getState().pagination.pageIndex}
+          onPageChange={(_, newPage) => table.setPageIndex(newPage)}
+          rowsPerPage={table.getState().pagination.pageSize}
+          onRowsPerPageChange={(e) => table.setPageSize(Number(e.target.value))}
+          rowsPerPageOptions={[5, 10, 20, 50]}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} of ${count}`
+          }
+        />
+      </Box>
       <Table>
         <TableHead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableCell key={header.id} colSpan={header.colSpan}>
-                  {header.isPlaceholder ? null : (
-                    <TableSortLabel
-                      active={header.column.getIsSorted() !== false}
-                      direction={
-                        header.column.getIsSorted() === 'asc' ? 'asc' : 'desc'
-                      }
-                      onClick={header.column.getToggleSortingHandler()}
+          {table.getHeaderGroups().map((headerGroup, headerGroupIndex) => (
+            <React.Fragment key={headerGroup.id}>
+              {/* Group Header Row */}
+              {headerGroupIndex === 0 && (
+                <TableRow sx={{ backgroundColor: '#e0e0e0' }}>
+                  {headerGroup.headers.map((header, groupIndex) => (
+                    <TableCell
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      sx={{
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        borderBottom: '1px solid #bdbdbd',
+                        backgroundColor:
+                          header.subHeaders.length <= 1 ? '#f5f5f5' : !(groupIndex % 2)
+                            ? '#e5e5e5'
+                            : '#efefef',
+                        fontSize: '1rem',
+                      }}
                     >
-                      {header.column.columnDef.header}
-                    </TableSortLabel>
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
+                      {
+                        (header.isPlaceholder
+                          ? null
+                          : header.column.columnDef.header) as string
+                      }
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )}
+
+              {/* Column Header Row */}
+              {headerGroupIndex !== 0 && (
+                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                  {headerGroup.headers.map((header, groupIndex) => (
+                    <TableCell
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      sx={{
+                        fontWeight: 'bold',
+                        borderBottom: '2px solid #bdbdbd',
+                      }}
+                    >
+                      {header.isPlaceholder ? null : (
+                        <TableSortLabel
+                          active={header.column.getIsSorted() !== false}
+                          direction={
+                            header.column.getIsSorted() === 'asc'
+                              ? 'asc'
+                              : 'desc'
+                          }
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {header.column.columnDef.header as string}
+                        </TableSortLabel>
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )}
+            </React.Fragment>
           ))}
         </TableHead>
         <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
+          {table.getRowModel().rows.map((row, index) => (
+            <TableRow
+              key={row.id}
+              sx={{
+                backgroundColor: index % 2 === 0 ? '#fafafa' : 'white',
+                '&:hover': { backgroundColor: '#e3f2fd' },
+              }}
+            >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>{cell.renderValue()}</TableCell>
+                <TableCell key={cell.id}>
+                  {cell.renderValue() as unknown as ReactNode}
+                </TableCell>
               ))}
             </TableRow>
           ))}
