@@ -65,20 +65,20 @@ These parameters work together to describe the shape, orientation, and position 
 
 (make it more elliptical and less circular)
 
-![image](./apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-03.png)
+![image](../../../apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-03.png)
 
 ### Increase Inclination
 
 (make more up-and-down and less across)
 
-![image](./apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-04.png)
+![image](../../../apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-04.png)
 
 ### Increase Argument of Perigee
 
 (roll the ellipse counter-clockwise in elliptical plane - notice node of descention (purple ball) is furthur away than node of assention (yellow ball))
 (both ascending node and descending node still fall along the line of nodes (purple line))
 
-![image](./apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-05.png)
+![image](../../../apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-05.png)
 
 ## Add Porrtal (Open-Source IDE-Like UX)
 
