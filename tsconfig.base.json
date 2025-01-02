@@ -17,6 +17,9 @@
     "paths": {
       "@orbital-eye/e01-visualize": [
         "libs/orbital-eye/e01-visualize/src/index.ts"
+      ],
+      "@orbital-eye/e02-visualize": [
+        "libs/orbital-eye/e02-visualize/src/index.ts"
       ]
     }
   },
