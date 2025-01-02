@@ -28,6 +28,7 @@ Investigate the [Implementation](./libs/orbital-eye/e01-visualize/README.md#add-
 
 ![image](./apps/orbital-eye/public/docs/images/orbital-eye.png)
 
+![image](./apps/orbital-eye/public/docs/images/starlink.jpg)
 # Orbital Eye Recipe
 
 ## Create GitHub Repo
@@ -57,7 +58,13 @@ Investigate the [Implementation](./libs/orbital-eye/e01-visualize/README.md#add-
     
     git remote add origin https://github.com/datumgeek/orbital-eye.git
 
+## @orbital-eye/e01-visualize Docs
 
+Investigate the [Implementation](./libs/orbital-eye/e01-visualize/README.md)
+
+## @orbital-eye/e02-visualize Docs
+
+Investigate the [Implementation](./libs/orbital-eye/e02-visualize/README.md)
 
 # Nx Stuff
 

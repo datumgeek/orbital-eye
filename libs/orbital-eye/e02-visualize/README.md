@@ -1,6 +1,63 @@
 # orbital-eye-e02-visualize
 
+## Overview
+
+![porrtal](../../../apps/orbital-eye/public/docs/images/porrtal.png)
+
+## Entity Types
+
+## Data Management
+
+## Views
+
+### project-info
+
+### time-slice-viz
+
+![time-slice-viz](../../../apps/orbital-eye/public/docs/images/time-slice-viz.png)
+### conjunction-list
+
+### satellite-details
+
+### conjunction-details
+
+### earth-satellite
+
+### mars-satellite
+
+## Web Workers
+
+### compute-positions
+
+### compute-conjunction-forecast
+
 ## Miscelaneous Links
+
+### ObservableHQ Framework
+
+1. Create `orbital-eye-observable-01` repo for static site generator
+2. Create `Pages`
+3. Build to Create the `dist` folder
+4. Copy `dist` contents to `public/observable-01` in orbital-eye app in orbital-eye repo
+5. Create IFrameHost View
+6. Register IFrameHost Views for Each `Page` (Define Menu Items to Launch Views)
+
+
+* [Static Site Generator](https://observablehq.com/blog/what-is-static-site-generator)
+* [Observable Framework - Mike Bostock](https://observablehq.com/blog/observable-2-0)
+* [Observable Framework - Overview](https://observablehq.com/framework/)
+* [Observable Framework - What is it](https://observablehq.com/framework/what-is-framework)
+* [Observable Framework - Getting Started](https://observablehq.com/framework/getting-started)
+* [Observable Framework - Deploying](https://observablehq.com/framework/deploying)
+* [Observable Framework - Embedding](https://observablehq.com/framework/embeds)
+
+```bash
+npx "@observablehq/framework@latest" create
+npm run dev -- --port 4321
+npm run build
+npx http-server dist
+npm update
+```
 
 ### d3js satellite tracker - earth
 * https://observablehq.com/@jake-low/satellite-ground-track-visualizer
