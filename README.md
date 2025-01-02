@@ -2,6 +2,12 @@
 
 A playground for orbital visualizations, calculations, and experiments
 
+## Building Orbital Eye
+
+![workstation](./apps/orbital-eye/public/docs/images/workstation.jpg)
+
+## Running Orbital Eye Samples
+
 Try it out !!
 [https://datumgeek.github.io/orbital-eye/](https://datumgeek.github.io/orbital-eye/)
 
