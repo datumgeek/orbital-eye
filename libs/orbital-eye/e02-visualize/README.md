@@ -2,34 +2,659 @@
 
 ## Overview
 
+The open-source [Porrtal](https://github.com/comcast/porrtal) project provides a platform for easily creating and IDE-like user experience for your React application.
+
+React components are independent and reusable bits of code that typically occupy a rectangular area of the UI.
+
+When building a Porrtal app, you will define an array of Porrtal "Views". Each Porrtal View object in the array references one of your React components. The View object also includes properties like icon, display text, pane, and more. The View object helps Porrtal load your components into the Porrtal app.
+
+The `nav` and `main` panes are shown in the image below.
+
 ![porrtal](../../../apps/orbital-eye/public/docs/images/porrtal.png)
 
 ## Entity Types
 
+* **Satellite** - The "Satellite" entity type represents each tracked Earth-orbiting item in the array
+* **Conjunction** - A pair of Satellites that pass within the defined threshold distance of eachother
+
 ## Data Management
+
+To manage application data, the orbital-eye application will utilize [Jotai](https://jotai.org/), leveraging atoms to track different collections of data. Here's how Jotai will be used for each of the application data requirements:
+
+---
+
+### **1. Satellite Data**
+This collection represents the static data about satellites, such as metadata and TLEs. It is shared across the application and does not change frequently.
+
+#### **Atom Definition**
+
+```typescript
+import { atom } from "jotai";
+
+export interface SatelliteData {
+  CCSDS_OMM_VERS: string;         // Version of the CCSDS OMM standard
+  COMMENT: string;               // Descriptive comment about the data set
+  CREATION_DATE?: Date;          // Date and time the record was created (optional)
+  ORIGINATOR: string;            // Entity responsible for generating the data
+  OBJECT_NAME?: string;          // Common name of the satellite (optional)
+  OBJECT_ID?: string;            // Unique identifier for the satellite (optional)
+  CENTER_NAME: string;           // Name of the celestial center, typically 'EARTH'
+  REF_FRAME: string;             // Reference frame, typically 'TEME'
+  TIME_SYSTEM: string;           // Time system used, typically 'UTC'
+  MEAN_ELEMENT_THEORY: string;   // Theory used for mean orbital elements, typically 'SGP4'
+  EPOCH?: Date;                  // Epoch of the orbital elements (optional)
+  MEAN_MOTION?: number;          // Mean motion (revolutions per day) (optional)
+  ECCENTRICITY?: number;         // Orbital eccentricity (optional)
+  INCLINATION?: number;          // Orbital inclination (degrees) (optional)
+  RA_OF_ASC_NODE?: number;       // Right ascension of the ascending node (degrees) (optional)
+  ARG_OF_PERICENTER?: number;    // Argument of perigee (degrees) (optional)
+  MEAN_ANOMALY?: number;         // Mean anomaly (degrees) (optional)
+  EPHEMERIS_TYPE?: number;       // Ephemeris type indicator (optional)
+  CLASSIFICATION_TYPE?: string;  // Classification type ('U' for unclassified) (optional)
+  NORAD_CAT_ID: number;          // NORAD catalog ID
+  ELEMENT_SET_NO?: number;       // Element set number (optional)
+  REV_AT_EPOCH?: number;         // Revolution number at epoch (optional)
+  BSTAR?: number;                // BSTAR drag term (optional)
+  MEAN_MOTION_DOT?: number;      // First derivative of mean motion (optional)
+  MEAN_MOTION_DDOT?: number;     // Second derivative of mean motion (optional)
+  SEMIMAJOR_AXIS?: number;       // Semi-major axis (km) (optional)
+  PERIOD?: number;               // Orbital period (minutes) (optional)
+  APOAPSIS?: number;             // Apogee altitude (km) (optional)
+  PERIAPSIS?: number;            // Perigee altitude (km) (optional)
+  OBJECT_TYPE?: string;          // Type of object (e.g., 'PAYLOAD', 'ROCKET BODY') (optional)
+  RCS_SIZE?: string;             // Radar cross-section size ('SMALL', 'MEDIUM', 'LARGE') (optional)
+  COUNTRY_CODE?: string;         // Country code of ownership (optional)
+  LAUNCH_DATE?: Date;            // Launch date of the object (optional)
+  SITE?: string;                 // Launch site (optional)
+  DECAY_DATE?: Date;             // Decay date (if applicable) (optional)
+  FILE?: number;                 // File identifier (optional)
+  GP_ID: number;                 // Unique identifier for the GP record
+  TLE_LINE0?: string;            // TLE line 0 (name of the satellite) (optional)
+  TLE_LINE1?: string;            // TLE line 1 containing orbital elements (optional)
+  TLE_LINE2?: string;            // TLE line 2 containing orbital elements (optional)
+}
+
+export const satelliteDataAtom = atom<SatelliteData[]>([]);
+```
+
+#### **Explanation**
+1. **Optional Fields**:
+   - Fields like `EPOCH`, `MEAN_MOTION`, and `OBJECT_TYPE` are marked as optional (`?`) because they may not always have a value.
+
+2. **Typed Fields**:
+   - Fields like `NORAD_CAT_ID`, `GP_ID`, and `MEAN_MOTION` are strongly typed as `number`, `string`, or `Date` based on the satellite data structure.
+
+3. **Array of Objects**:
+   - The atom holds an array of `SatelliteData` objects, representing the collection of satellites in the application.
+
+#### **Usage Example**
+
+To populate this atom with fetched data:
+
+```typescript
+import { useSetAtom } from "jotai";
+import { satelliteDataAtom } from "./state";
+
+const loadSatelliteData = async () => {
+  const setSatelliteData = useSetAtom(satelliteDataAtom);
+
+  const response = await fetch("path_to_satellite_data.json");
+  const data = await response.json();
+
+  setSatelliteData(data);
+};
+```
+
+This atom will track all satellite data, making it accessible across the application. 🚀
+
+---
+
+### **2. Conjunction Forecast**
+This collection tracks forecasted conjunction warnings, including satellite pairs, start and end times, and distances. It is calculated asynchronously and updated as new forecasts are computed.
+
+#### Atom Definition:
+```typescript
+interface ConjunctionWarning {
+  satellite1: string;
+  satellite2: string;
+  startTime: Date;
+  endTime: Date;
+  minDistance: number;
+}
+
+export const conjunctionForecastAtom = atom<ConjunctionWarning[]>([]);
+```
+
+#### Usage:
+- Populate this atom by running the conjunction forecast in a Web Worker and updating it with the results.
+- Components can subscribe to this atom to display conjunction warnings in the UI, such as in a timeline or detailed view.
+
+---
+
+### **3. Satellite Locations for a Particular Time**
+This collection tracks dynamic data representing satellite positions for a specific time. Since the app allows multiple independent views of timelines, each view needs its own set of satellite positions.
+
+#### Atom Family for Multiple Views:
+Jotai's `atomFamily` allows for dynamically created atoms based on unique keys.  The `viewStateKey` uniquely identifies the instance of the View in Porrtal.
+
+```typescript
+import { atomFamily } from "jotai/utils";
+
+interface SatelliteSnapshot {
+    startTime: Date;
+    currentTime: Date;
+    endTime: Date;
+    playBackSpeedMultiplier: number;
+    playMode: boolean;
+    selectedSatellite: string;
+    viewStateKey: string;
+    SatellitePosition[];
+}
+
+interface SatellitePosition {
+  OBJECT_NAME: string;
+  position: { x: number; y: number; z: number };
+}
+
+export const satelliteLocationsAtomFamily = atomFamily<string, SatelliteSnapshot>((viewId) => atom([]));
+```
+
+#### Usage:
+- For each view, create a unique atom by passing the `viewId`:
+  ```typescript
+  const view1Locations = satelliteLocationsAtomFamily("view1");
+  const view2Locations = satelliteLocationsAtomFamily("view2");
+  ```
+- Populate these atoms with the satellite positions calculated for the current time in the respective timeline view.
+- Components tied to a specific view will subscribe to their corresponding atom.
+
+---
+
+### **Jotai Integration**
+
+1. **Global State Management**:
+   - The `satelliteDataAtom` and `conjunctionForecastAtom` are global, shared across all components, and provide foundational data for satellite visualizations and analysis.
+
+2. **Per-View State Management**:
+   - The `satelliteLocationsAtomFamily` enables each timeline view to independently track and manage satellite positions for its specific time.
+
+3. **Reactivity**:
+   - When atoms are updated (e.g., positions are recalculated or a new forecast is generated), all components subscribed to those atoms automatically re-render with the new data.
+
+4. **Computation Integration**:
+   - Use derived atoms or utilities like `useEffect` to update atoms based on calculations or external events, such as advancing a timeline or fetching new forecast data.
+
+---
+
+### **Example Component Usage**
+
+#### Display Satellite Data:
+```tsx
+import { useAtom } from "jotai";
+import { satelliteDataAtom } from "./state";
+
+const SatelliteList = () => {
+  const [satellites] = useAtom(satelliteDataAtom);
+
+  return (
+    <ul>
+      {satellites.map((sat) => (
+        <li key={sat.OBJECT_NAME}>{sat.OBJECT_NAME}</li>
+      ))}
+    </ul>
+  );
+};
+```
+
+#### Display Conjunction Warnings:
+```tsx
+import { useAtom } from "jotai";
+import { conjunctionForecastAtom } from "./state";
+
+const ConjunctionWarnings = () => {
+  const [conjunctions] = useAtom(conjunctionForecastAtom);
+
+  return (
+    <ul>
+      {conjunctions.map((c, index) => (
+        <li key={index}>
+          {c.satellite1} and {c.satellite2} at {c.startTime.toISOString()} - {c.endTime.toISOString()} (Min Distance: {c.minDistance} km)
+        </li>
+      ))}
+    </ul>
+  );
+};
+```
+
+#### Manage Satellite Locations Per View:
+```tsx
+import { useAtom } from "jotai";
+import { satelliteLocationsAtomFamily } from "./state";
+
+const SatelliteTimelineView = ({ viewId }: { viewId: string }) => {
+  const [locations] = useAtom(satelliteLocationsAtomFamily(viewId));
+
+  return (
+    <ul>
+      {locations.map((loc) => (
+        <li key={loc.OBJECT_NAME}>
+          {loc.OBJECT_NAME}: x={loc.position.x}, y={loc.position.y}, z={loc.position.z}
+        </li>
+      ))}
+    </ul>
+  );
+};
+```
+
+---
+
+This structure ensures a clean separation of concerns while leveraging Jotai's simplicity and performance for managing state across the application. 🚀
 
 ## Views
 
 ### project-info
 
+The project-info View displays information about the project and will be loaded in tab in the main pane when the orbital-eye app is launched.
+
 ### time-slice-viz
+
+The time-slice-viz View provides a visualization of satellite positions around the Earth at a given point in time.  A timeline control allows the user to jump to a specific time to update the satellite locations.  Alternatively, the user can put the timeline in play mode which will roll forward in time (updating the satellite locations) at the specified time accelleration parameter.  The user can specify the desired start and stop time for the timeline.  The timeline also displays conjunction data where appropriate.
 
 ![time-slice-viz](../../../apps/orbital-eye/public/docs/images/time-slice-viz.png)
 ### conjunction-list
 
+The conjunction-list View provides an interface that can be used to calculate conjunction warnings for the specified time range.  Once calculated, the conjunctions are listed in a paging style interface.  The user can filter the list using a search string, if desired.
+
 ### satellite-details
+
+When a satellite is selected in one of the time-slice-viz Views or the conjunction-list View, the satellite-details View is displayed in the `nav` pane.  The existing satellite-detials View will be replaced when the next satellite is selected, unless the user choose to "pin" the satellite-detials view, in which case, an additional satellite-details View will be launched in the `nav` pane.
 
 ### conjunction-details
 
+When a conjunction is selected in the conjunction-list View, the conjunction-details View is displayed in the `nav` pane.  The existing conjunction-detials View will be replaced when the next conjunction is selected, unless the user choose to "pin" the conjunction-detials view, in which case, an additional conjunction-details View will be launched in the `nav` pane.
+
 ### earth-satellite
+
+A menu is provided to launch the [Earth Ground Track Visualizer](https://observablehq.com/@jake-low/satellite-ground-track-visualizer) in a Porrtal tab in the `main` pane.
+
+![d3js earth](../../../apps/orbital-eye/public/docs/images/d3js-earth.png)
 
 ### mars-satellite
 
+A menu is provided to launch the [Mars Ground Track Visualizer](https://observablehq.com/@mammoth80/satellite-ground-track-visualizer) in a Porrtal tab in the `main` pane.
+
+![d3js mars](../../../apps/orbital-eye/public/docs/images/d3js-mars.png)
+
 ## Web Workers
 
-### compute-positions
+### compute-positions-worker
 
-### compute-conjunction-forecast
+The strategy for calculating satellite positions and conjunctions is to run the calculations only for a single time slice (and iterate as needed).  This makes the proof of concept more efficient than trying to store all of the data points over three days.  The following describes how the system is structured:
+
+---
+
+#### **Approach**
+
+##### **1. Data Management**
+- **Satellite Data**:
+  - Store the TLE data and other metadata for all satellites in memory (e.g., an array of objects) using jotai.
+  - Use this data for position calculations at the current time.
+  
+- **Current Time Data**:
+  - Store positions only for the current time in memory using jotai:
+    ```typescript
+    const currentPositions: Record<string, { x: number; y: number; z: number }> = {};
+    ```
+  
+- **Conjunction Data**:
+  - Maintain a lightweight list of conjunction events with metadata for the timeline stored in jotai:
+    ```typescript
+    const conjunctions: Array<{ time: Date; satellite1: string; satellite2: string; distance: number }> = [];
+    ```
+
+##### **2. Web Worker**
+- Use a Web Worker to calculate positions and conjunctions for a given time step:
+  - Receive the TLE data and the current timestamp.
+  - Calculate positions for all satellites.
+  - Check for conjunctions by computing pairwise distances and flagging those below a threshold (e.g., 10 km).
+  - Return the calculated positions and conjunctions to the main thread.
+
+##### **3. Timeline Control**
+- Provide a timeline selector and playback controls in the UI:
+  - Allow the user to select a specific time or start an automatic playback at a chosen rate (e.g., 10 seconds per real-time second).
+  - On each time change, trigger the Web Worker to calculate positions and update the view.
+
+##### **4. Visualization**
+- Use **@react-three/fiber** with **Three.js** to render satellite positions dynamically.
+- Highlight conjunctions visually (e.g., connect satellites involved in a conjunction with lines or highlight them in red).
+
+---
+
+#### **Implementation**
+
+##### **Web Worker (compute-position-worker.ts)**
+
+```typescript
+import * as satellite from "satellite.js";
+
+self.onmessage = (event) => {
+  const { tles, timestamp } = event.data;
+
+  const positions = {};
+  const conjunctions = [];
+
+  for (let i = 0; i < tles.length; i++) {
+    const sat1 = tles[i];
+    const satrec1 = satellite.twoline2satrec(sat1.TLE_LINE1, sat1.TLE_LINE2);
+
+    const positionAndVelocity1 = satellite.propagate(satrec1, new Date(timestamp));
+    if (!positionAndVelocity1.position) continue;
+
+    const gmst = satellite.gstime(new Date(timestamp));
+    const positionEci1 = positionAndVelocity1.position;
+
+    // Store position for sat1
+    positions[sat1.OBJECT_NAME] = satellite.eciToGeodetic(positionEci1, gmst);
+
+    // Check for conjunctions with other satellites
+    for (let j = i + 1; j < tles.length; j++) {
+      const sat2 = tles[j];
+      const satrec2 = satellite.twoline2satrec(sat2.TLE_LINE1, sat2.TLE_LINE2);
+
+      const positionAndVelocity2 = satellite.propagate(satrec2, new Date(timestamp));
+      if (!positionAndVelocity2.position) continue;
+
+      const positionEci2 = positionAndVelocity2.position;
+      const distance = Math.sqrt(
+        Math.pow(positionEci1.x - positionEci2.x, 2) +
+        Math.pow(positionEci1.y - positionEci2.y, 2) +
+        Math.pow(positionEci1.z - positionEci2.z, 2)
+      );
+
+      if (distance < 10) { // Conjunction threshold in km
+        conjunctions.push({
+          time: timestamp,
+          satellite1: sat1.OBJECT_NAME,
+          satellite2: sat2.OBJECT_NAME,
+          distance,
+        });
+      }
+    }
+  }
+
+  self.postMessage({ positions, conjunctions });
+};
+```
+
+---
+
+##### **Main Thread Integration**
+
+```typescript
+const worker = new Worker(new URL('./compute-position-worker.ts', import.meta.url));
+let currentTime = new Date();
+
+worker.onmessage = (event) => {
+  const { positions, conjunctions } = event.data;
+
+  // Update the visualization
+  updateVisualization(positions);
+
+  // Store and display conjunctions
+  updateConjunctions(conjunctions);
+};
+
+const updateTime = () => {
+  currentTime = new Date(currentTime.getTime() + 10 * 1000); // Advance by 10 seconds
+  worker.postMessage({ tles, timestamp: currentTime });
+};
+
+// Start timeline playback
+setInterval(updateTime, 1000); // Update every real-time second
+```
+
+---
+
+##### **Visualization Update**
+
+```tsx
+import { Canvas } from "@react-three/fiber";
+
+const SatelliteVisualization = ({ positions, conjunctions }) => {
+  return (
+    <Canvas>
+      {/* Render satellites */}
+      {Object.entries(positions).map(([name, pos]) => (
+        <mesh key={name} position={[pos.x, pos.y, pos.z]}>
+          <sphereGeometry args={[0.1, 32, 32]} />
+          <meshStandardMaterial color="white" />
+        </mesh>
+      ))}
+
+      {/* Highlight conjunctions */}
+      {conjunctions.map((conjunction, index) => (
+        <line key={index}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              array={new Float32Array([
+                positions[conjunction.satellite1].x,
+                positions[conjunction.satellite1].y,
+                positions[conjunction.satellite1].z,
+                positions[conjunction.satellite2].x,
+                positions[conjunction.satellite2].y,
+                positions[conjunction.satellite2].z,
+              ])}
+              count={2}
+              itemSize={3}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color="red" />
+        </line>
+      ))}
+    </Canvas>
+  );
+};
+```
+
+---
+
+#### **Benefits of This Approach**
+1. **Memory Efficiency**: Only stores data for the current time step.
+2. **Scalability**: Web Worker handles heavy computations without blocking the UI.
+3. **Interactivity**: Timeline selector allows users to explore and visualize data dynamically.
+4. **Focused Storage**: Only conjunctions are stored, which is a small dataset compared to satellite positions.
+
+### conjunction-forecast-worker
+
+To provide progress updates while processing the conjunction forecast, the **Web Worker** can periodically send progress messages to the main thread. These messages can include the percentage of completion based on the time range being processed.
+
+---
+
+#### **Web Worker Code: `conjunction-forecast-worker.ts`**
+
+```typescript
+import * as satellite from "satellite.js";
+
+interface TLEData {
+  OBJECT_NAME: string;
+  TLE_LINE1: string;
+  TLE_LINE2: string;
+}
+
+interface ConjunctionWarning {
+  satellite1: string;
+  satellite2: string;
+  startTime: Date;
+  endTime: Date;
+  minDistance: number;
+}
+
+self.onmessage = (event) => {
+  const { tles, startTime, endTime, intervalSeconds, threshold } = event.data;
+
+  const conjunctionWarnings: ConjunctionWarning[] = [];
+  const activeConjunctions: Map<string, { startTime: Date; minDistance: number }> = new Map();
+
+  const totalSteps = Math.ceil((new Date(endTime).getTime() - new Date(startTime).getTime()) / (intervalSeconds * 1000));
+  let currentStep = 0;
+
+  let currentTime = new Date(startTime);
+
+  while (currentTime <= new Date(endTime)) {
+    const positions: Record<string, { x: number; y: number; z: number }> = {};
+
+    // Calculate satellite positions for the current time
+    tles.forEach((sat) => {
+      const satrec = satellite.twoline2satrec(sat.TLE_LINE1, sat.TLE_LINE2);
+      const propagation = satellite.propagate(satrec, currentTime);
+
+      if (propagation.position) {
+        const gmst = satellite.gstime(currentTime);
+        const positionEci = propagation.position;
+        const { x, y, z } = satellite.eciToGeodetic(positionEci, gmst);
+        positions[sat.OBJECT_NAME] = { x, y, z };
+      }
+    });
+
+    // Check for conjunctions between all pairs of satellites
+    tles.forEach((sat1, i) => {
+      for (let j = i + 1; j < tles.length; j++) {
+        const sat2 = tles[j];
+        const pos1 = positions[sat1.OBJECT_NAME];
+        const pos2 = positions[sat2.OBJECT_NAME];
+
+        if (pos1 && pos2) {
+          const distance = Math.sqrt(
+            Math.pow(pos1.x - pos2.x, 2) +
+              Math.pow(pos1.y - pos2.y, 2) +
+              Math.pow(pos1.z - pos2.z, 2)
+          );
+
+          const key = `${sat1.OBJECT_NAME}-${sat2.OBJECT_NAME}`;
+
+          if (distance < threshold) {
+            // If already in a conjunction, update the minimum distance
+            if (activeConjunctions.has(key)) {
+              const active = activeConjunctions.get(key)!;
+              active.minDistance = Math.min(active.minDistance, distance);
+            } else {
+              // Start a new conjunction
+              activeConjunctions.set(key, { startTime: new Date(currentTime), minDistance: distance });
+            }
+          } else if (activeConjunctions.has(key)) {
+            // End the conjunction
+            const active = activeConjunctions.get(key)!;
+            conjunctionWarnings.push({
+              satellite1: sat1.OBJECT_NAME,
+              satellite2: sat2.OBJECT_NAME,
+              startTime: active.startTime,
+              endTime: new Date(currentTime),
+              minDistance: active.minDistance,
+            });
+            activeConjunctions.delete(key);
+          }
+        }
+      }
+    });
+
+    // Increment time and update progress
+    currentStep++;
+    const progress = (currentStep / totalSteps) * 100;
+    self.postMessage({ type: "progress", progress });
+
+    currentTime = new Date(currentTime.getTime() + intervalSeconds * 1000);
+  }
+
+  // Handle any ongoing conjunctions that didn't end within the time range
+  activeConjunctions.forEach((active, key) => {
+    const [satellite1, satellite2] = key.split("-");
+    conjunctionWarnings.push({
+      satellite1,
+      satellite2,
+      startTime: active.startTime,
+      endTime: new Date(endTime),
+      minDistance: active.minDistance,
+    });
+  });
+
+  // Send final results
+  self.postMessage({ type: "complete", conjunctionWarnings });
+};
+```
+
+---
+
+#### **Main Thread Integration with Progress**
+
+Here’s how to use the worker to display progress:
+
+```typescript
+const forecastWorker = new Worker(new URL('./conjunction-forecast-worker.ts', import.meta.url));
+let progress = 0;
+
+forecastWorker.onmessage = (event) => {
+  const { type, progress: currentProgress, conjunctionWarnings } = event.data;
+
+  if (type === "progress") {
+    progress = currentProgress;
+    updateProgressUI(progress); // Update the UI with the current progress
+  } else if (type === "complete") {
+    console.log("Conjunction Warnings:", conjunctionWarnings);
+    updateConjunctionWarnings(conjunctionWarnings); // Display the final results in the UI
+  }
+};
+
+const forecastStartTime = new Date("2025-01-01T00:00:00Z");
+const forecastEndTime = new Date("2025-01-04T00:00:00Z");
+const timeInterval = 10; // Seconds
+const conjunctionThreshold = 10; // Kilometers
+
+forecastWorker.postMessage({
+  tles, // Array of TLEData
+  startTime: forecastStartTime,
+  endTime: forecastEndTime,
+  intervalSeconds: timeInterval,
+  threshold: conjunctionThreshold,
+});
+
+// Function to update the progress UI
+function updateProgressUI(progress: number) {
+  const progressBar = document.getElementById("progress-bar")!;
+  progressBar.style.width = `${progress}%`;
+  progressBar.innerText = `${Math.round(progress)}%`;
+}
+```
+
+---
+
+#### **UI for Progress**
+
+Add a simple progress bar to your HTML:
+
+```html
+<div id="progress-container" style="width: 100%; border: 1px solid #ccc;">
+  <div id="progress-bar" style="width: 0%; height: 20px; background: #4caf50; color: white; text-align: center;">
+    0%
+  </div>
+</div>
+```
+
+---
+
+#### **Key Updates**
+1. **Progress Messages**:
+   - The Web Worker sends periodic progress updates (`type: "progress"`) as it processes each time step.
+
+2. **Complete Message**:
+   - At the end, the worker sends a `type: "complete"` message containing the final conjunction warnings.
+
+3. **UI Feedback**:
+   - The progress bar visually reflects the worker's progress in real-time, keeping the user informed.
+
+---
+
+This approach ensures a responsive UI while processing the conjunction forecast and enhances the user experience by providing clear feedback on the computation's progress. Let me know if you need further refinements! 🚀
 
 ## Miscelaneous Links
 
