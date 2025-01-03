@@ -2,7 +2,7 @@ import styles from './index.module.scss';
 import dynamic from 'next/dynamic';
 
 const DynamicPorrtalWrapper = dynamic(
-  () => import('../../components/porrtal-wrapper').then((mod) => mod.PorrtalWrapper),
+  () => import('../../components/porrtal-wrapper/porrtal-wrapper').then((mod) => mod.PorrtalWrapper),
   {
     ssr: false,
   }

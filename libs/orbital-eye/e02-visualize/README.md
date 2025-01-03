@@ -60,6 +60,8 @@ The `nav` and `main` panes are shown in the image below.
 - [Recipe](#recipe)
   - [Create Library](#create-library)
   - [Create View Components](#create-view-components)
+  - [Add Page to orbital-eye App](#add-page-to-orbital-eye-app)
+  - [Add Porrtal Wrapper Component e02-porrtal-wrapper](#add-porrtal-wrapper-component-e02-porrtal-wrapper)
 - [Miscelaneous Links](#miscelaneous-links)
   - [ObservableHQ Framework](#observablehq-framework)
   - [d3js satellite tracker - earth](#d3js-satellite-tracker---earth)
@@ -752,6 +754,18 @@ nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/satellite-details
 
 # i-frame-host
 nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/i-frame-host/i-frame-host --export=true --style=scss
+```
+
+## Add Page to orbital-eye App
+
+```bash
+nx g @nx/next:page --path=apps/orbital-eye/pages/e02 --style=scss
+```
+
+## Add Porrtal Wrapper Component e02-porrtal-wrapper
+
+```bash
+nx g @nx/react:component --path=apps/orbital-eye/components/e02-porrtal-wrapper/e02-porrtal-wrapper --export=false --style=scss
 ```
 
 ---
