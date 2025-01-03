@@ -62,6 +62,9 @@ The `nav` and `main` panes are shown in the image below.
   - [Create View Components](#create-view-components)
   - [Add Page to orbital-eye App](#add-page-to-orbital-eye-app)
   - [Add Porrtal Wrapper Component e02-porrtal-wrapper](#add-porrtal-wrapper-component-e02-porrtal-wrapper)
+  - [Jotai Data Management](#jotai-data-management)
+    - [Add Jotai to Workspace](#add-jotai-to-workspace)
+    - [Add Component to Host Jotai Data Atoms](#add-component-to-host-jotai-data-atoms)
 - [Miscelaneous Links](#miscelaneous-links)
   - [ObservableHQ Framework](#observablehq-framework)
   - [d3js satellite tracker - earth](#d3js-satellite-tracker---earth)
@@ -767,6 +770,24 @@ nx g @nx/next:page --path=apps/orbital-eye/pages/e02 --style=scss
 ```bash
 nx g @nx/react:component --path=apps/orbital-eye/components/e02-porrtal-wrapper/e02-porrtal-wrapper --export=false --style=scss
 ```
+
+## Jotai Data Management
+
+### Add Jotai to Workspace
+
+```bash
+npm install jotai --save --legacy-peer-deps
+```
+
+### Add Component to Host Jotai Data Atoms
+
+```bash
+# jotai-data-host
+nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/jotai-data-host/jotai-data-host --export=true --style=scss
+```
+
+### Add Jotai Data Host to E02 Porrtal Wrapper
+
 
 ---
 

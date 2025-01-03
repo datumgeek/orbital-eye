@@ -24,7 +24,7 @@ A playground for orbital visualizations, calculations, and experiments
   - [Connect with us!](#connect-with-us)
 
 * [@portal-eye/e01-visualize](./libs/orbital-eye/e01-visualize/README.md) Sample
-* [@portal-eye/e02-visualize](./libs/orbital-eye/e01-visualize/README.md) Sample
+* [@portal-eye/e02-visualize](./libs/orbital-eye/e02-visualize/README.md) Sample
 
 ## Building Orbital Eye
 

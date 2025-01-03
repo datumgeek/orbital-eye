@@ -1,3 +1,4 @@
+export * from './../jotai-data-host/jotai-data-host';
 export * from './../i-frame-host/i-frame-host';
 export * from './../satellite-details/satellite-details';
 export * from './../satellite-search/satellite-search';
