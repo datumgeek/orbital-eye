@@ -32,6 +32,7 @@ export function E02PorrtalWrapper() {
       key: 'SatelliteDetails {noradCatId}',
       launchAtStartup: false,
       displayText: '{objectName}',
+      entityTypeMenuText: 'Satellite Details',
       paneType: 'main',
       displayIcon: 'satellite_alt',
       entityType: 'satellite',
