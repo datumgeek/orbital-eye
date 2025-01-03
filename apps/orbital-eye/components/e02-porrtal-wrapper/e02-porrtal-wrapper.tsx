@@ -80,6 +80,19 @@ export function E02PorrtalWrapper() {
       componentName: 'BoxScore',
       componentModule: () => import('@orbital-eye/e01-visualize'),
     },
+    // {
+    //   key: 'md{id}',
+    //   launchAtStartup: false,
+    //   paneType: 'main',
+    //   displayText: 'Markdown Viewer',
+    //   displayIcon: 'book',
+    //   componentName: 'MarkdownViewer',
+    //   componentModule: () => import('@porrtal-components/r-learning'),
+    //   state: {
+    //     id: 'e02',
+    //     contentUrl: 'docs/Sample-E02.md'
+    //   }
+    // }
   ];
   const porrtalBanner: BannerData = {
     displayText: 'Orbital Eye',
