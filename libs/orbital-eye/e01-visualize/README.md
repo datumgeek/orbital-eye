@@ -1,4 +1,4 @@
-# orbital-eye-e01-visualize
+# @orbital-eye/e01-visualize Sample
 
 Try it out !!
 [https://datumgeek.github.io/orbital-eye/](https://datumgeek.github.io/orbital-eye/)
@@ -13,6 +13,65 @@ Try it out in [Porrtal](https://github.com/comcast/porrtal) Open-Source IDE-Like
 <img src="../../../apps/orbital-eye/public/docs/images/e01-visualize-orbital-visualizer-06.png" alt="Orbit Visualizer" width="600">
 
 ---
+
+- [@orbital-eye/e01-visualize Sample](#orbital-eyee01-visualize-sample)
+- [Recipe](#recipe)
+  - [Add Library `@orbital-eye/e01-visualize`](#add-library-orbital-eyee01-visualize)
+  - [Add Component](#add-component)
+  - [Add ThreeJS Visualization](#add-threejs-visualization)
+  - [Boom shaka-laka !! :)](#boom-shaka-laka--)
+  - [Getting Good !! :)](#getting-good--)
+    - [Orbital Parameters Definitions](#orbital-parameters-definitions)
+    - [Increase Eccentricity](#increase-eccentricity)
+    - [Increase Inclination](#increase-inclination)
+    - [Increase Argument of Perigee](#increase-argument-of-perigee)
+  - [Add Porrtal (Open-Source IDE-Like UX)](#add-porrtal-open-source-ide-like-ux)
+    - [Create NextJS Page ('/portal')](#create-nextjs-page-portal)
+    - [Add Porrtal Packages](#add-porrtal-packages)
+    - [Add Porrtal Wrapper Component to NextJS App](#add-porrtal-wrapper-component-to-nextjs-app)
+  - [Perform Release and Publish Changelog](#perform-release-and-publish-changelog)
+    - [Perform First Release](#perform-first-release)
+    - [Perform Subsequent Releases](#perform-subsequent-releases)
+  - [Add Box Score View to Porrtal](#add-box-score-view-to-porrtal)
+    - [Add Component](#add-component-1)
+    - [Add NPM Package](#add-npm-package)
+- [Publish orbital-eye App to GitHub Pages](#publish-orbital-eye-app-to-github-pages)
+  - [**1. Prerequisites**](#1-prerequisites)
+  - [**2. Install `gh-pages` Package**](#2-install-gh-pages-package)
+  - [**3. Update Next.js App for Static Export**](#3-update-nextjs-app-for-static-export)
+  - [**4. Configure `project.json` for Static Export**](#4-configure-projectjson-for-static-export)
+  - [**5. Add a Deploy Script to `package.json`**](#5-add-a-deploy-script-to-packagejson)
+  - [**6. Set Up GitHub Repository**](#6-set-up-github-repository)
+    - [Create Empty gh-pages branch](#create-empty-gh-pages-branch)
+  - [**7. Build and Export Your App**](#7-build-and-export-your-app)
+  - [**8. Deploy to GitHub Pages**](#8-deploy-to-github-pages)
+  - [**9. Verify Deployment**](#9-verify-deployment)
+  - [**10. Automate Deployment (Optional)**](#10-automate-deployment-optional)
+- [OrbitVisualizer Component: Interactive 3D Orbital Simulation](#orbitvisualizer-component-interactive-3d-orbital-simulation)
+  - [Features](#features)
+  - [Code Overview](#code-overview)
+    - [Main Components](#main-components)
+    - [Key Code Highlights](#key-code-highlights)
+      - [Ellipse Calculation](#ellipse-calculation)
+      - [Rotational Transformations](#rotational-transformations)
+      - [Real-Time Updates](#real-time-updates)
+    - [User Interface](#user-interface)
+    - [Example Orbital Parameters](#example-orbital-parameters)
+- [Usage](#usage)
+- [Technologies Used](#technologies-used)
+- [Future Enhancements](#future-enhancements)
+- [Developer Overview](#developer-overview)
+  - [Developer's Explanation](#developers-explanation)
+    - [**1. Application Structure**](#1-application-structure)
+    - [**2. 3D Scene Rendering**](#2-3d-scene-rendering)
+    - [**3. Interactive Orbital Parameter Adjustment**](#3-interactive-orbital-parameter-adjustment)
+    - [**4. Orbital Calculations**](#4-orbital-calculations)
+    - [**5. Key Libraries and Tools**](#5-key-libraries-and-tools)
+    - [**6. Future Development Ideas**](#6-future-development-ideas)
+  - [Running unit tests](#running-unit-tests)
+
+
+# Recipe
 
 ![image](../../../apps/orbital-eye/public/docs/images/orbital-eye.png)
 
@@ -118,19 +177,19 @@ These parameters work together to describe the shape, orientation, and position 
 
     npm install @tanstack/react-table --legacy-peer-deps
 
-## Publish orbital-eye App to GitHub Pages
+# Publish orbital-eye App to GitHub Pages
 
 Publishing the orbital-eye Next.js app from an NX monorepo to GitHub Pages involves additional considerations because Next.js apps are dynamic by nature, but they can be exported as static websites using the `next export` command. Below is step-by-step guide:
 
 ---
 
-### **1. Prerequisites**
+## **1. Prerequisites**
 - Ensure your app is fully static or can be exported using `next export`.
 - You have a GitHub repository set up for your project.
 
 ---
 
-### **2. Install `gh-pages` Package**
+## **2. Install `gh-pages` Package**
 Install the `gh-pages` package to simplify deployment to GitHub Pages:
 
 ```bash
@@ -139,7 +198,7 @@ npm install --save-dev gh-pages
 
 ---
 
-### **3. Update Next.js App for Static Export**
+## **3. Update Next.js App for Static Export**
 1. Open the `next.config.js` file in your Next.js app directory (`apps/orbital-eye`).
 2. Add the `exportTrailingSlash` and `basePath` configuration:
 
@@ -159,7 +218,7 @@ This ensures the app can be statically exported and hosted under the `/` route o
 
 ---
 
-### **4. Configure `project.json` for Static Export**
+## **4. Configure `project.json` for Static Export**
 Update the `project.json` for your Next.js app (`apps/orbital-eye/project.json`) to include the static export step:
 
 ```json
@@ -185,7 +244,7 @@ Update the `project.json` for your Next.js app (`apps/orbital-eye/project.json`)
 
 ---
 
-### **5. Add a Deploy Script to `package.json`**
+## **5. Add a Deploy Script to `package.json`**
 Add a `deploy` script to the root `package.json`:
 
 ```json
@@ -196,9 +255,9 @@ Add a `deploy` script to the root `package.json`:
 
 ---
 
-### **6. Set Up GitHub Repository**
+## **6. Set Up GitHub Repository**
 
-#### Create Empty gh-pages branch
+### Create Empty gh-pages branch
 
 ```bash
 git checkout --orphan gh-pages
@@ -215,7 +274,7 @@ git checkout main
 
 ---
 
-### **7. Build and Export Your App**
+## **7. Build and Export Your App**
 Run the following commands to build and export your app:
 
 ```bash
@@ -227,7 +286,7 @@ This will generate static files in the `dist/apps/orbital-eye` directory.
 
 ---
 
-### **8. Deploy to GitHub Pages**
+## **8. Deploy to GitHub Pages**
 Run the deploy script:
 
 ```bash
@@ -238,22 +297,22 @@ This pushes the exported static files to the `gh-pages` branch in your GitHub re
 
 ---
 
-### **9. Verify Deployment**
+## **9. Verify Deployment**
 - Go to `https://datumgeek.github.io/orbital-eye/` to view your deployed site.
 - Check that all routes and assets load correctly.
 
 ---
 
-### **10. Automate Deployment (Optional)**
+## **10. Automate Deployment (Optional)**
 You can automate this process using GitHub Actions:
 1. Create a new workflow file at `.github/workflows/deploy.yml`.
 2. Use a workflow that builds, exports, and deploys your Next.js app to GitHub Pages.
 
-## OrbitVisualizer Component: Interactive 3D Orbital Simulation
+# OrbitVisualizer Component: Interactive 3D Orbital Simulation
 
 The **OrbitVisualizer** component (above) is a React component that visualizes a satellite's orbit in a 3D space using the [@react-three/fiber](https://docs.pmnd.rs/react-three-fiber) library for rendering, [@react-three/drei](https://github.com/pmndrs/drei) for additional 3D utilities, and [@mui/material](https://mui.com/) for the UI controls. This project demonstrates how orbital mechanics can be modeled and visualized interactively.
 
-### Features
+## Features
 
 - **3D Visualization of Orbit and Satellite:**
   - Displays the satellite's orbit as an elliptical path.
@@ -270,9 +329,9 @@ The **OrbitVisualizer** component (above) is a React component that visualizes a
     - True Anomaly
     - Eccentricity
 
-### Code Overview
+## Code Overview
 
-#### Main Components
+### Main Components
 
 1. **AxisVisualization**:
    - Renders the coordinate axes (X, Y, Z) with cylinders and cones.
@@ -300,9 +359,9 @@ The **OrbitVisualizer** component (above) is a React component that visualizes a
 4. **Orbital Parameter Sliders**:
    - A user interface for modifying the orbital parameters in real time.
 
-#### Key Code Highlights
+### Key Code Highlights
 
-##### Ellipse Calculation
+#### Ellipse Calculation
 
 - The elliptical orbit is calculated using the semi-major and semi-minor axes:
   ```typescript
@@ -311,7 +370,7 @@ The **OrbitVisualizer** component (above) is a React component that visualizes a
   ```
 - Points are generated using polar equations and transformed to Cartesian coordinates.
 
-##### Rotational Transformations
+#### Rotational Transformations
 
 - Rotations are applied to align the orbit in 3D space:
   ```typescript
@@ -321,16 +380,16 @@ The **OrbitVisualizer** component (above) is a React component that visualizes a
     .multiply(argumentMatrix);
   ```
 
-##### Real-Time Updates
+#### Real-Time Updates
 
 - User interactions with sliders update the `parameters` state, which recalculates and re-renders the orbit dynamically.
 
-#### User Interface
+### User Interface
 
 - **Material-UI (MUI)** sliders allow users to intuitively modify orbital parameters.
 - **@react-three/drei's OrbitControls** provides drag, zoom, and pan controls for interacting with the 3D scene.
 
-#### Example Orbital Parameters
+### Example Orbital Parameters
 
 The default parameters create a typical elliptical orbit:
 ```typescript
@@ -343,7 +402,7 @@ The default parameters create a typical elliptical orbit:
 }
 ```
 
-### How to Use
+# Usage
 
 1. **Install Dependencies**:
    Make sure you have `react`, `@react-three/fiber`, `@mui/material`, and `three` installed.
@@ -361,14 +420,14 @@ The default parameters create a typical elliptical orbit:
 3. **Adjust Parameters**:
    Use the sliders to explore how different orbital parameters affect the satellite's trajectory.
 
-## Technologies Used
+# Technologies Used
 
 - **React** for the UI framework.
 - **Three.js** (via @react-three/fiber) for 3D rendering.
 - **MUI** for sliders and layout components.
 - **TypeScript** for type safety.
 
-## Future Enhancements
+# Future Enhancements
 
 - Add textures to the Earth and satellite.
 - Display orbital metrics (e.g., altitude, velocity).
@@ -378,15 +437,11 @@ The default parameters create a typical elliptical orbit:
 
 Here's a detailed developer's explanation of the code for inclusion in the README:
 
----
-
-### Developer's Explanation
+## Developer's Explanation
 
 This code is a React component named **`OrbitVisualizer`**, designed to render and interactively visualize a satellite's orbit in 3D space. It uses **Three.js** (via `@react-three/fiber`) for rendering the 3D scene and **MUI** for the user interface elements that control orbital parameters. Below is a breakdown of its key components, functionality, and implementation details.
 
----
-
-#### **1. Application Structure**
+### **1. Application Structure**
 
 - The app is divided into **three main functional components**:
   1. **`AxisVisualization`**: Renders the X, Y, and Z coordinate axes as reference lines in the 3D scene.
@@ -399,7 +454,7 @@ This code is a React component named **`OrbitVisualizer`**, designed to render a
 
 ---
 
-#### **2. 3D Scene Rendering**
+### **2. 3D Scene Rendering**
 
 - **Rendering Engine**: 
   - **@react-three/fiber** is used for WebGL-based rendering, wrapping the core Three.js functionality in React components.
@@ -416,7 +471,7 @@ This code is a React component named **`OrbitVisualizer`**, designed to render a
 
 ---
 
-#### **3. Interactive Orbital Parameter Adjustment**
+### **3. Interactive Orbital Parameter Adjustment**
 
 - **State Management**:
   - The orbital parameters are stored in a `useState` object:
@@ -446,7 +501,7 @@ This code is a React component named **`OrbitVisualizer`**, designed to render a
 
 ---
 
-#### **4. Orbital Calculations**
+### **4. Orbital Calculations**
 
 - **Ellipse Geometry**:
   - The semi-major and semi-minor axes of the orbit are calculated based on the **eccentricity**:
@@ -488,7 +543,7 @@ This code is a React component named **`OrbitVisualizer`**, designed to render a
 
 ---
 
-#### **5. Key Libraries and Tools**
+### **5. Key Libraries and Tools**
 
 - **Three.js** (via `@react-three/fiber`): Provides the 3D rendering engine.
 - **@react-three/drei**: Simplifies 3D scene management with reusable components like `OrbitControls` and `Line`.
@@ -497,7 +552,7 @@ This code is a React component named **`OrbitVisualizer`**, designed to render a
 
 ---
 
-#### **6. Future Development Ideas**
+### **6. Future Development Ideas**
 
 - **Enhancements**:
   - Add animations to show the satellite moving in real-time along its orbit.

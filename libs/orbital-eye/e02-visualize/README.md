@@ -1,8 +1,6 @@
-# orbital-eye-e02-visualize
+# @orbital-eye/e02-visualize Sample
 
-## Overview
-
-The open-source [Porrtal](https://github.com/comcast/porrtal) project provides a platform for easily creating and IDE-like user experience for your React application.
+The open-source [Porrtal](https://github.com/comcast/porrtal) project provides a platform for easily creating an IDE-like user experience for your React application.
 
 React components are independent and reusable bits of code that typically occupy a rectangular area of the UI.
 
@@ -12,21 +10,81 @@ The `nav` and `main` panes are shown in the image below.
 
 ![porrtal](../../../apps/orbital-eye/public/docs/images/porrtal.png)
 
-## Entity Types
+- [@orbital-eye/e02-visualize Sample](#orbital-eyee02-visualize-sample)
+- [Entity Types](#entity-types)
+  - [**Satellite** - The "Satellite" entity type represents each tracked Earth-orbiting item in the array](#satellite---the-satellite-entity-type-represents-each-tracked-earth-orbiting-item-in-the-array)
+  - [**Conjunction** - An event where pair of Satellites that pass within the defined threshold distance of eachother](#conjunction---an-event-where-pair-of-satellites-that-pass-within-the-defined-threshold-distance-of-eachother)
+- [Data Management](#data-management)
+  - [**1. Satellite Data**](#1-satellite-data)
+    - [**Atom Definition**](#atom-definition)
+    - [**Explanation**](#explanation)
+    - [**Usage Example**](#usage-example)
+  - [**2. Conjunction Forecast**](#2-conjunction-forecast)
+    - [Atom Definition:](#atom-definition-1)
+    - [Usage:](#usage)
+  - [**3. Satellite Locations for a Particular Time**](#3-satellite-locations-for-a-particular-time)
+    - [Atom Family for Multiple Views:](#atom-family-for-multiple-views)
+    - [Usage:](#usage-1)
+  - [**Jotai Integration**](#jotai-integration)
+  - [**Example Component Usage**](#example-component-usage)
+    - [Display Satellite Data:](#display-satellite-data)
+    - [Display Conjunction Warnings:](#display-conjunction-warnings)
+    - [Manage Satellite Locations Per View:](#manage-satellite-locations-per-view)
+- [Views](#views)
+  - [project-info](#project-info)
+  - [time-slice-viz](#time-slice-viz)
+  - [conjunction-list](#conjunction-list)
+  - [conjunction-details](#conjunction-details)
+  - [satellite-search](#satellite-search)
+  - [satellite-details](#satellite-details)
+  - [conjunction-details](#conjunction-details-1)
+  - [earth-satellite](#earth-satellite)
+  - [mars-satellite](#mars-satellite)
+- [Web Workers](#web-workers)
+  - [compute-positions-worker](#compute-positions-worker)
+    - [**Approach**](#approach)
+      - [**1. Data Management**](#1-data-management)
+      - [**2. Web Worker**](#2-web-worker)
+      - [**3. Timeline Control**](#3-timeline-control)
+      - [**4. Visualization**](#4-visualization)
+    - [**Implementation**](#implementation)
+      - [**Web Worker (compute-position-worker.ts)**](#web-worker-compute-position-workerts)
+      - [**Main Thread Integration**](#main-thread-integration)
+      - [**Visualization Update**](#visualization-update)
+    - [**Benefits of This Approach**](#benefits-of-this-approach)
+  - [conjunction-forecast-worker](#conjunction-forecast-worker)
+    - [**Web Worker Code: `conjunction-forecast-worker.ts`**](#web-worker-code-conjunction-forecast-workerts)
+    - [**Main Thread Integration with Progress**](#main-thread-integration-with-progress)
+    - [**UI for Progress**](#ui-for-progress)
+    - [**Key Updates**](#key-updates)
+- [Recipe](#recipe)
+  - [Create Library](#create-library)
+  - [Create View Components](#create-view-components)
+- [Miscelaneous Links](#miscelaneous-links)
+  - [ObservableHQ Framework](#observablehq-framework)
+  - [d3js satellite tracker - earth](#d3js-satellite-tracker---earth)
+  - [d3js satellite tracker - mars](#d3js-satellite-tracker---mars)
+  - [d3js satellite view of earth](#d3js-satellite-view-of-earth)
+  - [d3js intro](#d3js-intro)
+- [Space Track Earth-Orbiting Data Download](#space-track-earth-orbiting-data-download)
+  - [**Field Descriptions**](#field-descriptions)
+  - [**Key Points**](#key-points)
+- [Nx Monorepo Tool](#nx-monorepo-tool)
+  - [Running unit tests](#running-unit-tests)
 
-* **Satellite** - The "Satellite" entity type represents each tracked Earth-orbiting item in the array
-* **Conjunction** - A pair of Satellites that pass within the defined threshold distance of eachother
+# Entity Types
 
-## Data Management
+## **Satellite** - The "Satellite" entity type represents each tracked Earth-orbiting item in the array
+## **Conjunction** - An event where pair of Satellites that pass within the defined threshold distance of eachother
+
+# Data Management
 
 To manage application data, the orbital-eye application will utilize [Jotai](https://jotai.org/), leveraging atoms to track different collections of data. Here's how Jotai will be used for each of the application data requirements:
 
----
-
-### **1. Satellite Data**
+## **1. Satellite Data**
 This collection represents the static data about satellites, such as metadata and TLEs. It is shared across the application and does not change frequently.
 
-#### **Atom Definition**
+### **Atom Definition**
 
 ```typescript
 import { atom } from "jotai";
@@ -77,7 +135,7 @@ export interface SatelliteData {
 export const satelliteDataAtom = atom<SatelliteData[]>([]);
 ```
 
-#### **Explanation**
+### **Explanation**
 1. **Optional Fields**:
    - Fields like `EPOCH`, `MEAN_MOTION`, and `OBJECT_TYPE` are marked as optional (`?`) because they may not always have a value.
 
@@ -87,7 +145,7 @@ export const satelliteDataAtom = atom<SatelliteData[]>([]);
 3. **Array of Objects**:
    - The atom holds an array of `SatelliteData` objects, representing the collection of satellites in the application.
 
-#### **Usage Example**
+### **Usage Example**
 
 To populate this atom with fetched data:
 
@@ -109,10 +167,10 @@ This atom will track all satellite data, making it accessible across the applica
 
 ---
 
-### **2. Conjunction Forecast**
+## **2. Conjunction Forecast**
 This collection tracks forecasted conjunction warnings, including satellite pairs, start and end times, and distances. It is calculated asynchronously and updated as new forecasts are computed.
 
-#### Atom Definition:
+### Atom Definition:
 ```typescript
 interface ConjunctionWarning {
   satellite1: string;
@@ -125,16 +183,16 @@ interface ConjunctionWarning {
 export const conjunctionForecastAtom = atom<ConjunctionWarning[]>([]);
 ```
 
-#### Usage:
+### Usage:
 - Populate this atom by running the conjunction forecast in a Web Worker and updating it with the results.
 - Components can subscribe to this atom to display conjunction warnings in the UI, such as in a timeline or detailed view.
 
 ---
 
-### **3. Satellite Locations for a Particular Time**
+## **3. Satellite Locations for a Particular Time**
 This collection tracks dynamic data representing satellite positions for a specific time. Since the app allows multiple independent views of timelines, each view needs its own set of satellite positions.
 
-#### Atom Family for Multiple Views:
+### Atom Family for Multiple Views:
 Jotai's `atomFamily` allows for dynamically created atoms based on unique keys.  The `viewStateKey` uniquely identifies the instance of the View in Porrtal.
 
 ```typescript
@@ -159,7 +217,7 @@ interface SatellitePosition {
 export const satelliteLocationsAtomFamily = atomFamily<string, SatelliteSnapshot>((viewId) => atom([]));
 ```
 
-#### Usage:
+### Usage:
 - For each view, create a unique atom by passing the `viewId`:
   ```typescript
   const view1Locations = satelliteLocationsAtomFamily("view1");
@@ -170,7 +228,7 @@ export const satelliteLocationsAtomFamily = atomFamily<string, SatelliteSnapshot
 
 ---
 
-### **Jotai Integration**
+## **Jotai Integration**
 
 1. **Global State Management**:
    - The `satelliteDataAtom` and `conjunctionForecastAtom` are global, shared across all components, and provide foundational data for satellite visualizations and analysis.
@@ -186,9 +244,9 @@ export const satelliteLocationsAtomFamily = atomFamily<string, SatelliteSnapshot
 
 ---
 
-### **Example Component Usage**
+## **Example Component Usage**
 
-#### Display Satellite Data:
+### Display Satellite Data:
 ```tsx
 import { useAtom } from "jotai";
 import { satelliteDataAtom } from "./state";
@@ -206,7 +264,7 @@ const SatelliteList = () => {
 };
 ```
 
-#### Display Conjunction Warnings:
+### Display Conjunction Warnings:
 ```tsx
 import { useAtom } from "jotai";
 import { conjunctionForecastAtom } from "./state";
@@ -226,7 +284,7 @@ const ConjunctionWarnings = () => {
 };
 ```
 
-#### Manage Satellite Locations Per View:
+### Manage Satellite Locations Per View:
 ```tsx
 import { useAtom } from "jotai";
 import { satelliteLocationsAtomFamily } from "./state";
@@ -246,56 +304,65 @@ const SatelliteTimelineView = ({ viewId }: { viewId: string }) => {
 };
 ```
 
----
-
 This structure ensures a clean separation of concerns while leveraging Jotai's simplicity and performance for managing state across the application. 🚀
 
-## Views
+---
 
-### project-info
+# Views
+
+## project-info
 
 The project-info View displays information about the project and will be loaded in tab in the main pane when the orbital-eye app is launched.
 
-### time-slice-viz
+## time-slice-viz
 
 The time-slice-viz View provides a visualization of satellite positions around the Earth at a given point in time.  A timeline control allows the user to jump to a specific time to update the satellite locations.  Alternatively, the user can put the timeline in play mode which will roll forward in time (updating the satellite locations) at the specified time accelleration parameter.  The user can specify the desired start and stop time for the timeline.  The timeline also displays conjunction data where appropriate.
 
 ![time-slice-viz](../../../apps/orbital-eye/public/docs/images/time-slice-viz.png)
-### conjunction-list
+
+## conjunction-list
 
 The conjunction-list View provides an interface that can be used to calculate conjunction warnings for the specified time range.  Once calculated, the conjunctions are listed in a paging style interface.  The user can filter the list using a search string, if desired.
 
-### satellite-details
+## conjunction-details
+
+The conjunction-details View provides an interface that can be used to investige and visualize a conjunction event.
+
+## satellite-search
+
+The satellite-search View allows the user to type in a string and see a list of the satellite records that contain that string.
+
+## satellite-details
 
 When a satellite is selected in one of the time-slice-viz Views or the conjunction-list View, the satellite-details View is displayed in the `nav` pane.  The existing satellite-detials View will be replaced when the next satellite is selected, unless the user choose to "pin" the satellite-detials view, in which case, an additional satellite-details View will be launched in the `nav` pane.
 
-### conjunction-details
+## conjunction-details
 
 When a conjunction is selected in the conjunction-list View, the conjunction-details View is displayed in the `nav` pane.  The existing conjunction-detials View will be replaced when the next conjunction is selected, unless the user choose to "pin" the conjunction-detials view, in which case, an additional conjunction-details View will be launched in the `nav` pane.
 
-### earth-satellite
+## earth-satellite
 
 A menu is provided to launch the [Earth Ground Track Visualizer](https://observablehq.com/@jake-low/satellite-ground-track-visualizer) in a Porrtal tab in the `main` pane.
 
 ![d3js earth](../../../apps/orbital-eye/public/docs/images/d3js-earth.png)
 
-### mars-satellite
+## mars-satellite
 
 A menu is provided to launch the [Mars Ground Track Visualizer](https://observablehq.com/@mammoth80/satellite-ground-track-visualizer) in a Porrtal tab in the `main` pane.
 
 ![d3js mars](../../../apps/orbital-eye/public/docs/images/d3js-mars.png)
 
-## Web Workers
+---
 
-### compute-positions-worker
+# Web Workers
+
+## compute-positions-worker
 
 The strategy for calculating satellite positions and conjunctions is to run the calculations only for a single time slice (and iterate as needed).  This makes the proof of concept more efficient than trying to store all of the data points over three days.  The following describes how the system is structured:
 
----
+### **Approach**
 
-#### **Approach**
-
-##### **1. Data Management**
+#### **1. Data Management**
 - **Satellite Data**:
   - Store the TLE data and other metadata for all satellites in memory (e.g., an array of objects) using jotai.
   - Use this data for position calculations at the current time.
@@ -312,27 +379,27 @@ The strategy for calculating satellite positions and conjunctions is to run the 
     const conjunctions: Array<{ time: Date; satellite1: string; satellite2: string; distance: number }> = [];
     ```
 
-##### **2. Web Worker**
+#### **2. Web Worker**
 - Use a Web Worker to calculate positions and conjunctions for a given time step:
   - Receive the TLE data and the current timestamp.
   - Calculate positions for all satellites.
   - Check for conjunctions by computing pairwise distances and flagging those below a threshold (e.g., 10 km).
   - Return the calculated positions and conjunctions to the main thread.
 
-##### **3. Timeline Control**
+#### **3. Timeline Control**
 - Provide a timeline selector and playback controls in the UI:
   - Allow the user to select a specific time or start an automatic playback at a chosen rate (e.g., 10 seconds per real-time second).
   - On each time change, trigger the Web Worker to calculate positions and update the view.
 
-##### **4. Visualization**
+#### **4. Visualization**
 - Use **@react-three/fiber** with **Three.js** to render satellite positions dynamically.
 - Highlight conjunctions visually (e.g., connect satellites involved in a conjunction with lines or highlight them in red).
 
 ---
 
-#### **Implementation**
+### **Implementation**
 
-##### **Web Worker (compute-position-worker.ts)**
+#### **Web Worker (compute-position-worker.ts)**
 
 ```typescript
 import * as satellite from "satellite.js";
@@ -388,7 +455,7 @@ self.onmessage = (event) => {
 
 ---
 
-##### **Main Thread Integration**
+#### **Main Thread Integration**
 
 ```typescript
 const worker = new Worker(new URL('./compute-position-worker.ts', import.meta.url));
@@ -415,7 +482,7 @@ setInterval(updateTime, 1000); // Update every real-time second
 
 ---
 
-##### **Visualization Update**
+#### **Visualization Update**
 
 ```tsx
 import { Canvas } from "@react-three/fiber";
@@ -459,19 +526,17 @@ const SatelliteVisualization = ({ positions, conjunctions }) => {
 
 ---
 
-#### **Benefits of This Approach**
+### **Benefits of This Approach**
 1. **Memory Efficiency**: Only stores data for the current time step.
 2. **Scalability**: Web Worker handles heavy computations without blocking the UI.
 3. **Interactivity**: Timeline selector allows users to explore and visualize data dynamically.
 4. **Focused Storage**: Only conjunctions are stored, which is a small dataset compared to satellite positions.
 
-### conjunction-forecast-worker
+## conjunction-forecast-worker
 
 To provide progress updates while processing the conjunction forecast, the **Web Worker** can periodically send progress messages to the main thread. These messages can include the percentage of completion based on the time range being processed.
 
----
-
-#### **Web Worker Code: `conjunction-forecast-worker.ts`**
+### **Web Worker Code: `conjunction-forecast-worker.ts`**
 
 ```typescript
 import * as satellite from "satellite.js";
@@ -585,7 +650,7 @@ self.onmessage = (event) => {
 
 ---
 
-#### **Main Thread Integration with Progress**
+### **Main Thread Integration with Progress**
 
 Here’s how to use the worker to display progress:
 
@@ -628,7 +693,7 @@ function updateProgressUI(progress: number) {
 
 ---
 
-#### **UI for Progress**
+### **UI for Progress**
 
 Add a simple progress bar to your HTML:
 
@@ -642,7 +707,7 @@ Add a simple progress bar to your HTML:
 
 ---
 
-#### **Key Updates**
+### **Key Updates**
 1. **Progress Messages**:
    - The Web Worker sends periodic progress updates (`type: "progress"`) as it processes each time step.
 
@@ -652,13 +717,48 @@ Add a simple progress bar to your HTML:
 3. **UI Feedback**:
    - The progress bar visually reflects the worker's progress in real-time, keeping the user informed.
 
+This approach ensures a responsive UI while processing the conjunction forecast and enhances the user experience by providing clear feedback on the computation's progress. 🚀
+
 ---
 
-This approach ensures a responsive UI while processing the conjunction forecast and enhances the user experience by providing clear feedback on the computation's progress. Let me know if you need further refinements! 🚀
+# Recipe
 
-## Miscelaneous Links
+## Create Library
 
-### ObservableHQ Framework
+```bash
+nx g @nx/react:library --name=orbital-eye-e01-visualize --bundler=rollup --directory=libs/orbital-eye/e01-visualize --component=false --importPath=@orbital-eye/e01-visualize --projectNameAndRootFormat=as-provided --publishable=true --style=scss --unitTestRunner=jest
+```
+
+## Create View Components
+
+```bash
+# project-info
+nx g @nx/react:component --name=project-info --directory=libs/orbital-eye/e02-visualize/project-info --export=true --nameAndDirectoryFormat=as-provided --style=scss
+
+# time-slice-viz
+nx g @nx/react:component --name=time-slice-viz --directory=libs/orbital-eye/e02-visualize/time-slice-viz --export=true --nameAndDirectoryFormat=as-provided --style=scss
+
+# conjunction-list
+nx g @nx/react:component --name=conjunction-list --directory=libs/orbital-eye/e02-visualize/conjunction-list --export=true --nameAndDirectoryFormat=as-provided --style=scss
+
+# conjunction-details
+nx g @nx/react:component --name=conjunction-details --directory=libs/orbital-eye/e02-visualize/conjunction-details --export=true --nameAndDirectoryFormat=as-provided --style=scss
+
+# satellite-search
+nx g @nx/react:component --name=satellite-search --directory=libs/orbital-eye/e02-visualize/satellite-search --export=true --nameAndDirectoryFormat=as-provided --style=scss
+
+# satellite-details
+nx g @nx/react:component --name=satellite-details --directory=libs/orbital-eye/e02-visualize/satellite-details --export=true --nameAndDirectoryFormat=as-provided --style=scss
+
+# i-frame-host
+nx g @nx/react:component --name=i-frame-host --directory=libs/orbital-eye/e02-visualize/i-frame-host --export=true --nameAndDirectoryFormat=as-provided --style=scss
+```
+
+---
+
+# Miscelaneous Links
+
+## ObservableHQ Framework
 
 1. Create `orbital-eye-observable-01` repo for static site generator
 2. Create `Pages`
@@ -684,24 +784,24 @@ npx http-server dist
 npm update
 ```
 
-### d3js satellite tracker - earth
+## d3js satellite tracker - earth
 * https://observablehq.com/@jake-low/satellite-ground-track-visualizer
 
 ![d3js earth](../../../apps/orbital-eye/public/docs/images/d3js-earth.png)
 
-### d3js satellite tracker - mars
+## d3js satellite tracker - mars
 * https://observablehq.com/@mammoth80/satellite-ground-track-visualizer
 
 ![d3js mars](../../../apps/orbital-eye/public/docs/images/d3js-mars.png)
 
-### d3js satellite view of earth
+## d3js satellite view of earth
 * https://observablehq.com/@d3/satellite
 * https://observablehq.com/@d3/satellite-explorer
 
-### d3js intro
+## d3js intro
 * https://observablehq.com/@mitvis/introduction-to-d3
 
-## Space Track Earth-Orbiting Data Download
+# Space Track Earth-Orbiting Data Download
 
 The [general perturbations (GP)](https://www.space-track.org/documentation#api-basicSpaceDataGp) class is an efficient listing of the newest SGP4 keplerian element set for each man-made earth-orbiting object tracked by the 18th Space Defense Squadron. It is designed to accommodate the expanded satellite catalog’s 9-digit identifiers. Users can return data in the CCSDS flexible Orbit Mean-Elements Message (OMM) format in canonical XML/KVN, JSON, CSV, or HTML. All 5 of these formats use the same keywords and definitions for OMM as provided in the Orbit Data Messages (ODM) [CCSDS Recommended Standard 502.0-B-3](https://public.ccsds.org/Pubs/502x0b3e1.pdf)
 
@@ -731,7 +831,7 @@ Each entry in the dataset stores detailed orbital and metadata information for s
 
 ---
 
-### **Field Descriptions**
+## **Field Descriptions**
 
 | Field                   | Type                    | Null | Key  | Default | Extra         | Description                                                              |
 |-------------------------|-------------------------|------|------|---------|---------------|--------------------------------------------------------------------------|
@@ -776,13 +876,15 @@ Each entry in the dataset stores detailed orbital and metadata information for s
 | **TLE_LINE1**           | `varchar(71)`          | YES  |      |         |               | TLE line 1 containing orbital elements.                                 |
 | **TLE_LINE2**           | `varchar(71)`          | YES  |      |         |               | TLE line 2 containing orbital elements.                                 |
 
----
-
-### **Key Points**
+## **Key Points**
 - The table supports CCSDS OMM standard for orbital metadata.
 - TLE data (line 0, 1, and 2) is stored for compatibility with SGP4 propagation models.
 - Fields like `NORAD_CAT_ID`, `OBJECT_NAME`, and `GP_ID` are critical for uniquely identifying satellites.
 - Orbital parameters (e.g., `ECCENTRICITY`, `INCLINATION`) support accurate orbital calculations.
+
+---
+
+# Nx Monorepo Tool
 
 This library was generated with [Nx](https://nx.dev).
 

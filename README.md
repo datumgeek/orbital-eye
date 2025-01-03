@@ -2,6 +2,30 @@
 
 A playground for orbital visualizations, calculations, and experiments
 
+- [OrbitalEye](#orbitaleye)
+  - [Building Orbital Eye](#building-orbital-eye)
+  - [Running Orbital Eye Samples](#running-orbital-eye-samples)
+- [Orbital Eye Recipe](#orbital-eye-recipe)
+  - [Create GitHub Repo](#create-github-repo)
+  - [Install NodeJS LTS](#install-nodejs-lts)
+  - [Create Nx Workspace](#create-nx-workspace)
+  - [Install nx globally](#install-nx-globally)
+  - [Run it](#run-it)
+  - [Add remote](#add-remote)
+  - [@orbital-eye/e01-visualize Docs](#orbital-eyee01-visualize-docs)
+  - [@orbital-eye/e02-visualize Docs](#orbital-eyee02-visualize-docs)
+- [Nx Stuff](#nx-stuff)
+  - [Integrate with editors](#integrate-with-editors)
+  - [Start the application](#start-the-application)
+  - [Build for production](#build-for-production)
+  - [Running tasks](#running-tasks)
+  - [Set up CI!](#set-up-ci)
+  - [Explore the project graph](#explore-the-project-graph)
+  - [Connect with us!](#connect-with-us)
+
+* [@portal-eye/e01-visualize](./libs/orbital-eye/e01-visualize/README.md) Sample
+* [@portal-eye/e02-visualize](./libs/orbital-eye/e01-visualize/README.md) Sample
+
 ## Building Orbital Eye
 
 ![workstation](./apps/orbital-eye/public/docs/images/workstation.jpg)
