@@ -30,7 +30,23 @@ export function PorrtalWrapper() {
   const porrtalBanner: BannerData = {
     displayText: "Orbital Eye",
     displayIcon: "public",
-    childData: []
+    childData: [
+      {
+        displayIcon: 'satellite_alt',
+        displayText: 'e02 Sample',
+        targetUrl: '/e02'
+      },
+      {
+        displayIcon: 'satellite_alt',
+        displayText: 'portal Sample',
+        targetUrl: '/portal'
+      },
+      {
+        displayIcon: 'satellite_alt',
+        displayText: 'Simple Demo',
+        targetUrl: '/'
+      }
+    ]
   };
   return (
     <ShellState views={porrtalViews}>
