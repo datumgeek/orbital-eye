@@ -65,7 +65,7 @@ export function E02PorrtalWrapper() {
       displayText: 'Global Satellites',
       paneType: 'main',
       menu: 'e02.global-satellites',
-      displayIcon: 'satellite_alt',
+      displayIcon: 'public',
       entityType: 'satellite',
       componentName: 'TimeSliceViz',
       componentModule: () => import('@orbital-eye/e02-visualize'),
