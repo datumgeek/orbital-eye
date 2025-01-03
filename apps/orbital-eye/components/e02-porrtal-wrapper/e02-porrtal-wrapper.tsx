@@ -28,6 +28,17 @@ export function E02PorrtalWrapper() {
       componentModule: () => import('@orbital-eye/e02-visualize'),
     },
     {
+      viewId: 'SatelliteDetails',
+      key: 'SatelliteDetails {noradCatId}',
+      launchAtStartup: false,
+      displayText: '{objectName}',
+      paneType: 'main',
+      displayIcon: 'satellite_alt',
+      entityType: 'satellite',
+      componentName: 'SatelliteDetails',
+      componentModule: () => import('@orbital-eye/e02-visualize'),
+    },
+    {
       key: 'ProjectInfo',
       launchAtStartup: true,
       displayText: 'Project Info',

@@ -13,12 +13,14 @@ import {
   Paper,
   Typography,
   TablePagination,
+  Link,
 } from '@mui/material';
 import {
   satelliteDataAtom,
   SatelliteData,
 } from '../jotai-data-host/data/satellite-data';
 import { useDebouncedSearchText } from '@porrtal/r-shell';
+import { EntityMenu } from '@porrtal/r-shell-material';
 
 export const SatelliteSearch: React.FC = () => {
   const searchString = useDebouncedSearchText();
@@ -71,7 +73,17 @@ export const SatelliteSearch: React.FC = () => {
             {retData.length > 0 ? (
               retData.map((record, index) => (
                 <TableRow key={index}>
-                  <TableCell>{record.OBJECT_NAME || 'N/A'}</TableCell>
+                  <TableCell>
+                    <EntityMenu
+                      entityType="satellite"
+                      state={{
+                        noradCatId: record.NORAD_CAT_ID,
+                        objectName: record.OBJECT_NAME ?? '',
+                      }}
+                    >
+                      <Link>{record.OBJECT_NAME || 'N/A'}</Link>
+                    </EntityMenu>
+                  </TableCell>
                   <TableCell>{record.OBJECT_ID || 'N/A'}</TableCell>
                   <TableCell>{record.NORAD_CAT_ID}</TableCell>
                   <TableCell>{record.CENTER_NAME}</TableCell>
