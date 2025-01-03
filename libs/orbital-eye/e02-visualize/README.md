@@ -733,25 +733,25 @@ nx g @nx/react:library --name=orbital-eye-e01-visualize --bundler=rollup --direc
 
 ```bash
 # project-info
-nx g @nx/react:component --name=project-info --directory=libs/orbital-eye/e02-visualize/project-info --export=true --nameAndDirectoryFormat=as-provided --style=scss
+nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/project-info/project-info --export=true --style=scss
 
 # time-slice-viz
-nx g @nx/react:component --name=time-slice-viz --directory=libs/orbital-eye/e02-visualize/time-slice-viz --export=true --nameAndDirectoryFormat=as-provided --style=scss
+nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/time-slice-viz/time-slice-viz --export=true --style=scss
 
 # conjunction-list
-nx g @nx/react:component --name=conjunction-list --directory=libs/orbital-eye/e02-visualize/conjunction-list --export=true --nameAndDirectoryFormat=as-provided --style=scss
+nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/conjunction-list/conjunction-list --export=true --style=scss
 
 # conjunction-details
-nx g @nx/react:component --name=conjunction-details --directory=libs/orbital-eye/e02-visualize/conjunction-details --export=true --nameAndDirectoryFormat=as-provided --style=scss
+nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/conjunction-details/conjunction-details --export=true --style=scss
 
 # satellite-search
-nx g @nx/react:component --name=satellite-search --directory=libs/orbital-eye/e02-visualize/satellite-search --export=true --nameAndDirectoryFormat=as-provided --style=scss
+nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/satellite-search/satellite-search --export=true --style=scss
 
 # satellite-details
-nx g @nx/react:component --name=satellite-details --directory=libs/orbital-eye/e02-visualize/satellite-details --export=true --nameAndDirectoryFormat=as-provided --style=scss
+nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/satellite-details/satellite-details --export=true --style=scss
 
 # i-frame-host
-nx g @nx/react:component --name=i-frame-host --directory=libs/orbital-eye/e02-visualize/i-frame-host --export=true --nameAndDirectoryFormat=as-provided --style=scss
+nx g @nx/react:component --path=libs/orbital-eye/e02-visualize/i-frame-host/i-frame-host --export=true --style=scss
 ```
 
 ---
