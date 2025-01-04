@@ -178,7 +178,7 @@ Add a `deploy` script to the root `package.json`:
 
 ```json
 "scripts": {
-  "deploy": "nx build orbital-eye && gh-pages -d dist/apps/orbital-eye"
+  "deploy": "nx build orbital-eye --skip-nx-cache && gh-pages -d apps/orbital-eye/out"
 }
 ```
 
