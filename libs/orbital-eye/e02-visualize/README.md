@@ -10,6 +10,17 @@ The `nav` and `main` panes are shown in the image below.
 
 ![porrtal](../../../apps/orbital-eye/public/docs/images/porrtal.png)
 
+Try it out !!
+[https://datumgeek.github.io/orbital-eye/e02](https://datumgeek.github.io/orbital-eye/e02)
+
+<img src="../../../apps/orbital-eye/public/docs/images/e02-02.png" alt="Orbit Visualizer" width="900">
+
+<img src="../../../apps/orbital-eye/public/docs/images/e02-01.png" alt="Orbit Visualizer" width="900">
+
+<img src="../../../apps/orbital-eye/public/docs/images/e02-03.png" alt="Orbit Visualizer" width="900">
+
+---
+
 - [@orbital-eye/e02-visualize Sample](#orbital-eyee02-visualize-sample)
 - [Entity Types](#entity-types)
   - [**Satellite** - The "Satellite" entity type represents each tracked Earth-orbiting item in the array](#satellite---the-satellite-entity-type-represents-each-tracked-earth-orbiting-item-in-the-array)
@@ -65,6 +76,7 @@ The `nav` and `main` panes are shown in the image below.
   - [Jotai Data Management](#jotai-data-management)
     - [Add Jotai to Workspace](#add-jotai-to-workspace)
     - [Add Component to Host Jotai Data Atoms](#add-component-to-host-jotai-data-atoms)
+    - [Add Jotai Data Host to E02 Porrtal Wrapper](#add-jotai-data-host-to-e02-porrtal-wrapper)
 - [Miscelaneous Links](#miscelaneous-links)
   - [ObservableHQ Framework](#observablehq-framework)
   - [d3js satellite tracker - earth](#d3js-satellite-tracker---earth)

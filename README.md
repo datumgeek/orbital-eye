@@ -33,6 +33,19 @@ A playground for orbital visualizations, calculations, and experiments
 ## Running Orbital Eye Samples
 
 Try it out !!
+[https://datumgeek.github.io/orbital-eye/e02](https://datumgeek.github.io/orbital-eye/e02)
+
+Investigate the [Implementation](./libs/orbital-eye/e02-visualize/README.md)
+
+<img src="./apps/orbital-eye/public/docs/images/e02-02.png" alt="Orbit Visualizer" width="900">
+
+<img src="./apps/orbital-eye/public/docs/images/e02-01.png" alt="Orbit Visualizer" width="900">
+
+<img src="./apps/orbital-eye/public/docs/images/e02-03.png" alt="Orbit Visualizer" width="900">
+
+---
+
+Try it out !!
 [https://datumgeek.github.io/orbital-eye/](https://datumgeek.github.io/orbital-eye/)
 
 Investigate the [Implementation](./libs/orbital-eye/e01-visualize/README.md)
