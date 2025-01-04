@@ -8,7 +8,10 @@ import { useAtom } from 'jotai';
 import { satelliteDataAtom } from '../jotai-data-host/data/satellite-data';
 
 const Earth = () => {
-  const texture = new TextureLoader().load('/docs/images/ne1-small.png');
+  const basePath = window.location.pathname.startsWith('/orbital-eye')
+  ? '/orbital-eye/'
+  : '/';
+const texture = new TextureLoader().load(`${basePath}docs/images/ne1-small.png`);
   return (
     <mesh>
       <sphereGeometry args={[6.371, 64, 64]} />

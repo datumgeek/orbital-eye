@@ -10,12 +10,15 @@ export function JotaiDataHost(props: JotaiDataHostProps) {
   const setSatelliteData = useSetAtom(satelliteDataAtom);
   useEffect(() => {
     const loadSatelliteData = async () => {
-      const response = await fetch('/data/satellite-gp.json');
+      const basePath = window.location.pathname.startsWith('/orbital-eye')
+        ? '/orbital-eye/'
+        : '/';
+      const response = await fetch(`${basePath}data/satellite-gp.json`);
       const data = await response.json();
       setSatelliteData(data);
-    }
+    };
     loadSatelliteData();
-  })
+  });
   return props.children;
 }
 
