@@ -21,10 +21,24 @@ Try it out !!
 
 ---
 
+Table of Contents
 - [@orbital-eye/e02-visualize Sample](#orbital-eyee02-visualize-sample)
 - [Entity Types](#entity-types)
   - [**Satellite** - The "Satellite" entity type represents each tracked Earth-orbiting item in the array](#satellite---the-satellite-entity-type-represents-each-tracked-earth-orbiting-item-in-the-array)
   - [**Conjunction** - An event where pair of Satellites that pass within the defined threshold distance of eachother](#conjunction---an-event-where-pair-of-satellites-that-pass-within-the-defined-threshold-distance-of-eachother)
+- [Space Track Data](#space-track-data)
+  - [Earth-Orbiting Data Download](#earth-orbiting-data-download)
+    - [Data File](#data-file)
+    - [Space Track Docs](#space-track-docs)
+    - [Download URL](#download-url)
+    - [**Field Descriptions**](#field-descriptions)
+    - [**Key Points**](#key-points)
+  - [Public Conjunction Data Download](#public-conjunction-data-download)
+    - [Data File](#data-file-1)
+    - [Space Track Docs](#space-track-docs-1)
+    - [Download URL](#download-url-1)
+    - [Field Descriptions](#field-descriptions-1)
+    - [Sample Data](#sample-data)
 - [Data Management](#data-management)
   - [**1. Satellite Data**](#1-satellite-data)
     - [**Atom Definition**](#atom-definition)
@@ -33,6 +47,11 @@ Try it out !!
   - [**2. Conjunction Forecast**](#2-conjunction-forecast)
     - [Atom Definition:](#atom-definition-1)
     - [Usage:](#usage)
+    - [Integration with Public Data:](#integration-with-public-data)
+    - [Example:](#example)
+    - [Code to Ingest Data](#code-to-ingest-data)
+    - [Key Features](#key-features)
+    - [Usage in a React Component](#usage-in-a-react-component)
   - [**3. Satellite Locations for a Particular Time**](#3-satellite-locations-for-a-particular-time)
     - [Atom Family for Multiple Views:](#atom-family-for-multiple-views)
     - [Usage:](#usage-1)
@@ -83,9 +102,6 @@ Try it out !!
   - [d3js satellite tracker - mars](#d3js-satellite-tracker---mars)
   - [d3js satellite view of earth](#d3js-satellite-view-of-earth)
   - [d3js intro](#d3js-intro)
-- [Space Track Earth-Orbiting Data Download](#space-track-earth-orbiting-data-download)
-  - [**Field Descriptions**](#field-descriptions)
-  - [**Key Points**](#key-points)
 - [Nx Monorepo Tool](#nx-monorepo-tool)
   - [Running unit tests](#running-unit-tests)
 
@@ -93,6 +109,183 @@ Try it out !!
 
 ## **Satellite** - The "Satellite" entity type represents each tracked Earth-orbiting item in the array
 ## **Conjunction** - An event where pair of Satellites that pass within the defined threshold distance of eachother
+
+# Space Track Data
+
+## Earth-Orbiting Data Download
+
+### Data File
+
+`apps/orbital-eye/public/data/satellite-gp.json`
+
+### Space Track Docs
+
+The [general perturbations (GP)](https://www.space-track.org/documentation#api-basicSpaceDataGp) class is an efficient listing of the newest SGP4 keplerian element set for each man-made earth-orbiting object tracked by the 18th Space Defense Squadron. It is designed to accommodate the expanded satellite catalog’s 9-digit identifiers. Users can return data in the CCSDS flexible Orbit Mean-Elements Message (OMM) format in canonical XML/KVN, JSON, CSV, or HTML. All 5 of these formats use the same keywords and definitions for OMM as provided in the Orbit Data Messages (ODM) [CCSDS Recommended Standard 502.0-B-3](https://public.ccsds.org/Pubs/502x0b3e1.pdf)
+
+Select catalog numbers below 100,000 are also available in the legacy fixed-width TLE or 3LE format. While the [Alpha-5](https://www.space-track.org/documentation#/tle-alpha5) schema extends the range that the TLE format supports to include numbers up to 339,999, https://Space-Track.org and https://Celestrak.com recommend that developers migrate their software to use the OMM standard for all GP ephemerides. Please see the [Alpha-5 documentation](https://www.space-track.org/documentation#/tle-alpha5) for more on this.
+
+Note: Alpha-5 formatted ELSETs will only be available through the TLE and 3LE formats of the gp and gp_history class.
+
+This class also allows for expanded elset filtering based on additional object metadata from the satellite catalog like:
+radar cross section (RCS_SIZE): Small, Medium, Large
+object type (OBJECT_TYPE): Payload, Rocket Body, Debris, Unknown
+launch site (SITE)
+launch date (LAUNCH_DATE)
+decay date (DECAY_DATE)
+country code (COUNTRY_CODE)
+file identifier for groups uploaded together (FILE)
+unique ephemerides identifier (GP_ID)
+... if such values exist for the object. Note that many analyst satellite objects' catalog numbers above 70,000 do not have much metadata.
+
+Please see all available columns for filtering by viewing the [gp class's model definition](https://www.space-track.org/basicspacedata/modeldef/class/gp/format/html).
+
+Note: Queries made in HTML, JSON, and CSV will contain the TLE lines as fields (TLE_LINE0, TLE_LINE1, TLE_LINE2). The OMM (XML/KVN) formats do not contain these fields in order to save space and eliminate redundancy.
+
+### Download URL
+
+The recommended URL for retrieving the newest propagable element set for all on-orbit objects is:
+https://www.space-track.org/basicspacedata/query/class/gp/decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/json
+
+Each entry in the dataset stores detailed orbital and metadata information for satellites, conforming to the CCSDS OMM standard.
+
+---
+
+### **Field Descriptions**
+
+| Field                   | Type                    | Null | Key  | Default | Extra         | Description                                                              |
+|-------------------------|-------------------------|------|------|---------|---------------|--------------------------------------------------------------------------|
+| **CCSDS_OMM_VERS**      | `varchar(3)`           | NO   |      |         |               | Version of the CCSDS OMM standard.                                      |
+| **COMMENT**             | `varchar(33)`          | NO   |      |         |               | Descriptive comment about the data set.                                 |
+| **CREATION_DATE**       | `datetime`             | YES  |      |         |               | Date and time the record was created.                                   |
+| **ORIGINATOR**          | `varchar(7)`           | NO   |      |         |               | Entity responsible for generating the data.                             |
+| **OBJECT_NAME**         | `varchar(25)`          | YES  |      |         |               | Common name of the satellite.                                           |
+| **OBJECT_ID**           | `varchar(12)`          | YES  |      |         |               | Unique identifier for the satellite.                                    |
+| **CENTER_NAME**         | `varchar(5)`           | NO   |      |         |               | Name of the celestial center, typically `EARTH`.                        |
+| **REF_FRAME**           | `varchar(4)`           | NO   |      |         |               | Reference frame, typically `TEME`.                                      |
+| **TIME_SYSTEM**         | `varchar(3)`           | NO   |      |         |               | Time system used, typically `UTC`.                                      |
+| **MEAN_ELEMENT_THEORY** | `varchar(4)`           | NO   |      |         |               | Theory used for mean orbital elements, typically `SGP4`.                |
+| **EPOCH**               | `datetime(6)`          | YES  |      |         |               | Epoch of the orbital elements.                                          |
+| **MEAN_MOTION**         | `decimal(13,8)`        | YES  |      |         |               | Mean motion (revolutions per day).                                      |
+| **ECCENTRICITY**        | `decimal(13,8)`        | YES  |      |         |               | Orbital eccentricity.                                                   |
+| **INCLINATION**         | `decimal(7,4)`         | YES  |      |         |               | Orbital inclination (degrees).                                          |
+| **RA_OF_ASC_NODE**      | `decimal(7,4)`         | YES  |      |         |               | Right ascension of the ascending node (degrees).                        |
+| **ARG_OF_PERICENTER**   | `decimal(7,4)`         | YES  |      |         |               | Argument of perigee (degrees).                                          |
+| **MEAN_ANOMALY**        | `decimal(7,4)`         | YES  |      |         |               | Mean anomaly (degrees).                                                 |
+| **EPHEMERIS_TYPE**      | `tinyint(4)`           | YES  |      | `0`     |               | Ephemeris type indicator.                                               |
+| **CLASSIFICATION_TYPE** | `char(1)`              | YES  |      |         |               | Classification type (`U` for unclassified).                             |
+| **NORAD_CAT_ID**        | `int(10) unsigned`     | NO   |      |         |               | NORAD catalog ID.                                                       |
+| **ELEMENT_SET_NO**      | `smallint(5) unsigned` | YES  |      |         |               | Element set number.                                                     |
+| **REV_AT_EPOCH**        | `mediumint(8) unsigned`| YES  |      |         |               | Revolution number at epoch.                                             |
+| **BSTAR**               | `decimal(19,14)`       | YES  |      |         |               | BSTAR drag term.                                                        |
+| **MEAN_MOTION_DOT**     | `decimal(9,8)`         | YES  |      |         |               | First derivative of mean motion.                                        |
+| **MEAN_MOTION_DDOT**    | `decimal(22,13)`       | YES  |      |         |               | Second derivative of mean motion.                                       |
+| **SEMIMAJOR_AXIS**      | `double(12,3)`         | YES  |      |         |               | Semi-major axis (km).                                                   |
+| **PERIOD**              | `double(12,3)`         | YES  |      |         |               | Orbital period (minutes).                                               |
+| **APOAPSIS**            | `double(12,3)`         | YES  |      |         |               | Apogee altitude (km).                                                   |
+| **PERIAPSIS**           | `double(12,3)`         | YES  |      |         |               | Perigee altitude (km).                                                  |
+| **OBJECT_TYPE**         | `varchar(12)`          | YES  |      |         |               | Type of object (e.g., `PAYLOAD`, `ROCKET BODY`).                        |
+| **RCS_SIZE**            | `char(6)`              | YES  |      |         |               | Radar cross-section size (`SMALL`, `MEDIUM`, `LARGE`).                  |
+| **COUNTRY_CODE**        | `char(6)`              | YES  |      |         |               | Country code of ownership.                                              |
+| **LAUNCH_DATE**         | `date`                | YES  |      |         |               | Launch date of the object.                                              |
+| **SITE**                | `char(5)`              | YES  |      |         |               | Launch site.                                                            |
+| **DECAY_DATE**          | `date`                | YES  |      |         |               | Decay date (if applicable).                                             |
+| **FILE**                | `bigint(20) unsigned`  | YES  |      |         |               | File identifier.                                                        |
+| **GP_ID**               | `int(10) unsigned`    | NO   |      |         |               | Unique identifier for the GP record.                                    |
+| **TLE_LINE0**           | `varchar(27)`          | YES  |      |         |               | TLE line 0 (name of the satellite).                                     |
+| **TLE_LINE1**           | `varchar(71)`          | YES  |      |         |               | TLE line 1 containing orbital elements.                                 |
+| **TLE_LINE2**           | `varchar(71)`          | YES  |      |         |               | TLE line 2 containing orbital elements.                                 |
+
+### **Key Points**
+- The table supports CCSDS OMM standard for orbital metadata.
+- TLE data (line 0, 1, and 2) is stored for compatibility with SGP4 propagation models.
+- Fields like `NORAD_CAT_ID`, `OBJECT_NAME`, and `GP_ID` are critical for uniquely identifying satellites.
+- Orbital parameters (e.g., `ECCENTRICITY`, `INCLINATION`) support accurate orbital calculations.
+
+---
+
+## Public Conjunction Data Download
+
+### Data File
+
+`apps/orbital-eye/public/data/public-conjunction.json`
+
+### Space Track Docs
+
+Publicly available Conjunction Data. [API Documentation](https://www.space-track.org/documentation#api-basicSpaceDataCdmPublic).  [Record Format](https://www.space-track.org/basicspacedata/modeldef/class/cdm_public/format/html)
+
+For a detailed understanding of the subset of available fields, please refer to the Conjunction Data Message (CDM) [CCSDS Recommended Standard 508.0-B-1](https://public.ccsds.org/Pubs/508x0b1e2c2.pdf)
+
+CREATION_DATE is the time that the CDM was generated at 18 SDS
+
+TCA is the predicted time of closest approach
+
+### Download URL
+
+https://www.space-track.org/basicspacedata/query/class/cdm_public/format/json
+
+### Field Descriptions
+
+| Field               | Type                | Allow Nulls |
+|---------------------|---------------------|-------------|
+| CDM_ID              | int(10) unsigned   | NO          |
+| CREATED             | datetime(6)        | YES         |
+| EMERGENCY_REPORTABLE| char(1)            | YES         |
+| TCA                 | datetime(6)        | YES         |
+| MIN_RNG             | double             | YES         |
+| PC                  | double             | YES         |
+| SAT_1_ID            | int(10) unsigned   | YES         |
+| SAT_1_NAME          | varchar(25)        | YES         |
+| SAT1_OBJECT_TYPE    | varchar(25)        | YES         |
+| SAT1_RCS            | varchar(6)         | YES         |
+| SAT_1_EXCL_VOL      | varchar(62)        | YES         |
+| SAT_2_ID            | int(10) unsigned   | YES         |
+| SAT_2_NAME          | varchar(25)        | YES         |
+| SAT2_OBJECT_TYPE    | varchar(25)        | YES         |
+| SAT2_RCS            | varchar(6)         | YES         |
+| SAT_2_EXCL_VOL      | varchar(62)        | YES         |
+
+### Sample Data
+
+```json
+[
+    {
+        "CDM_ID": "883769700",
+        "CREATED": "2024-12-05 14:26:42.000000",
+        "EMERGENCY_REPORTABLE": "Y",
+        "TCA": "2024-12-07T16:09:42.166000",
+        "MIN_RNG": "571",
+        "PC": "0.0004452478",
+        "SAT_1_ID": "2118",
+        "SAT_1_NAME": "DELTA 1 DEB",
+        "SAT1_OBJECT_TYPE": "DEBRIS",
+        "SAT1_RCS": "SMALL",
+        "SAT_1_EXCL_VOL": "1.00",
+        "SAT_2_ID": "60684",
+        "SAT_2_NAME": "CZ-6A DEB",
+        "SAT2_OBJECT_TYPE": "DEBRIS",
+        "SAT2_RCS": "MEDIUM",
+        "SAT_2_EXCL_VOL": "5.00"
+    },
+    {
+        "CDM_ID": "883769928",
+        "CREATED": "2024-12-05 14:26:43.000000",
+        "EMERGENCY_REPORTABLE": "Y",
+        "TCA": "2024-12-06T15:45:46.906000",
+        "MIN_RNG": "383",
+        "PC": "0.0009019625",
+        "SAT_1_ID": "2940",
+        "SAT_1_NAME": "THOR BURNER 2 R\/B",
+        "SAT1_OBJECT_TYPE": "ROCKET BODY",
+        "SAT1_RCS": "LARGE",
+        "SAT_1_EXCL_VOL": "3.00",
+        "SAT_2_ID": "60961",
+        "SAT_2_NAME": "CZ-6A DEB",
+        "SAT2_OBJECT_TYPE": "DEBRIS",
+        "SAT2_RCS": "SMALL",
+        "SAT_2_EXCL_VOL": "5.00"
+    },
+]
+```
 
 # Data Management
 
@@ -185,26 +378,232 @@ This atom will track all satellite data, making it accessible across the applica
 ---
 
 ## **2. Conjunction Forecast**
-This collection tracks forecasted conjunction warnings, including satellite pairs, start and end times, and distances. It is calculated asynchronously and updated as new forecasts are computed.
+This collection tracks forecasted conjunction warnings, including satellite pairs, start and end times, and distances. It is calculated asynchronously and updated as new forecasts are computed. The data is supplemented with publicly available conjunction data from Space-Track.
 
 ### Atom Definition:
 ```typescript
 interface ConjunctionWarning {
-  satellite1: string;
-  satellite2: string;
-  startTime: Date;
-  endTime: Date;
-  minDistance: number;
+  cdmId: number; // Unique identifier for the conjunction
+  created: Date; // Date the CDM was generated
+  emergencyReportable: boolean; // Indicates if the conjunction is reportable as an emergency
+  tca: Date; // Time of closest approach
+  minDistance: number; // Minimum range between the satellites
+  probability: number; // Probability of collision
+  satellite1: {
+    id: number;
+    name: string;
+    objectType: string;
+    rcs: string; // Radar cross-section size
+    exclusionVolume: string;
+  };
+  satellite2: {
+    id: number;
+    name: string;
+    objectType: string;
+    rcs: string;
+    exclusionVolume: string;
+  };
 }
 
 export const conjunctionForecastAtom = atom<ConjunctionWarning[]>([]);
 ```
 
 ### Usage:
-- Populate this atom by running the conjunction forecast in a Web Worker and updating it with the results.
-- Components can subscribe to this atom to display conjunction warnings in the UI, such as in a timeline or detailed view.
+- **Population**:
+  - Populate this atom by running the conjunction forecast in a Web Worker and updating it with the results.
+  - Supplement forecast data with public conjunction data available from Space-Track.
+- **Components**:
+  - Subscribe to this atom to display conjunction warnings in the UI, such as in a timeline or detailed view.
+  - Leverage fields like `emergencyReportable` and `probability` to highlight critical warnings.
 
----
+### Integration with Public Data:
+- **Data Source**:
+  - Public data is retrieved from the Space-Track Conjunction Data Message API: [Download JSON](https://www.space-track.org/basicspacedata/query/class/cdm_public/format/json).
+  - Follows the CCSDS Recommended Standard [508.0-B-1](https://public.ccsds.org/Pubs/508x0b1e2c2.pdf).
+- **Field Mapping**:
+  - Use fields such as `CDM_ID`, `TCA`, `MIN_RNG`, and satellite-specific fields (`SAT_1_ID`, `SAT_2_NAME`, etc.) to augment the `ConjunctionWarning` structure.
+
+### Example:
+Sample data from Space-Track API:
+
+```json
+[
+    {
+        "cdmId": 883769700,
+        "created": "2024-12-05T14:26:42.000Z",
+        "emergencyReportable": true,
+        "tca": "2024-12-07T16:09:42.166Z",
+        "minDistance": 571,
+        "probability": 0.0004452478,
+        "satellite1": {
+            "id": 2118,
+            "name": "DELTA 1 DEB",
+            "objectType": "DEBRIS",
+            "rcs": "SMALL",
+            "exclusionVolume": "1.00"
+        },
+        "satellite2": {
+            "id": 60684,
+            "name": "CZ-6A DEB",
+            "objectType": "DEBRIS",
+            "rcs": "MEDIUM",
+            "exclusionVolume": "5.00"
+        }
+    },
+    {
+        "cdmId": 883769928,
+        "created": "2024-12-05T14:26:43.000Z",
+        "emergencyReportable": true,
+        "tca": "2024-12-06T15:45:46.906Z",
+        "minDistance": 383,
+        "probability": 0.0009019625,
+        "satellite1": {
+            "id": 2940,
+            "name": "THOR BURNER 2 R/B",
+            "objectType": "ROCKET BODY",
+            "rcs": "LARGE",
+            "exclusionVolume": "3.00"
+        },
+        "satellite2": {
+            "id": 60961,
+            "name": "CZ-6A DEB",
+            "objectType": "DEBRIS",
+            "rcs": "SMALL",
+            "exclusionVolume": "5.00"
+        }
+    }
+]
+```
+
+### Code to Ingest Data
+
+Code to ingest the data from the `public-conjunction.json` file into the Jotai atom, illustrating usage in the React application using TypeScript and Jotai.
+
+```typescript
+import { atom } from "jotai";
+import { useEffect } from "react";
+
+// Define the interface for the conjunction warning
+interface ConjunctionWarning {
+  cdmId: number;
+  created: Date;
+  emergencyReportable: boolean;
+  tca: Date;
+  minDistance: number;
+  probability: number;
+  satellite1: {
+    id: number;
+    name: string;
+    objectType: string;
+    rcs: string;
+    exclusionVolume: string;
+  };
+  satellite2: {
+    id: number;
+    name: string;
+    objectType: string;
+    rcs: string;
+    exclusionVolume: string;
+  };
+}
+
+// Jotai atom to hold conjunction warnings
+export const conjunctionForecastAtom = atom<ConjunctionWarning[]>([]);
+
+// Utility function to transform raw JSON into ConjunctionWarning objects
+const transformConjunctionData = (data: any[]): ConjunctionWarning[] => {
+  return data.map(item => ({
+    cdmId: parseInt(item.CDM_ID, 10),
+    created: new Date(item.CREATED),
+    emergencyReportable: item.EMERGENCY_REPORTABLE === "Y",
+    tca: new Date(item.TCA),
+    minDistance: parseFloat(item.MIN_RNG),
+    probability: parseFloat(item.PC),
+    satellite1: {
+      id: parseInt(item.SAT_1_ID, 10),
+      name: item.SAT_1_NAME,
+      objectType: item.SAT1_OBJECT_TYPE,
+      rcs: item.SAT1_RCS,
+      exclusionVolume: item.SAT_1_EXCL_VOL
+    },
+    satellite2: {
+      id: parseInt(item.SAT_2_ID, 10),
+      name: item.SAT_2_NAME,
+      objectType: item.SAT2_OBJECT_TYPE,
+      rcs: item.SAT2_RCS,
+      exclusionVolume: item.SAT_2_EXCL_VOL
+    }
+  }));
+};
+
+// React hook to load data from the JSON file into the Jotai atom
+export const useLoadConjunctionData = () => {
+  const setConjunctionWarnings = atom(() => conjunctionForecastAtom);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/data/public-conjunction.json");
+        if (!response.ok) {
+          throw new Error("Failed to fetch conjunction data");
+        }
+        const rawData = await response.json();
+        const transformedData = transformConjunctionData(rawData);
+        setConjunctionWarnings(transformedData);
+      } catch (error) {
+        console.error("Error loading conjunction data:", error);
+      }
+    };
+
+    fetchData();
+  }, [setConjunctionWarnings]);
+};
+```
+
+### Key Features
+
+1. **Data Transformation**: 
+   - The `transformConjunctionData` function converts the raw JSON fields into the structure defined by the `ConjunctionWarning` interface.
+
+2. **React Hook**:
+   - The `useLoadConjunctionData` hook uses `fetch` to load the JSON file and updates the `conjunctionForecastAtom` with the transformed data.
+
+3. **Error Handling**:
+   - Handles errors gracefully if the JSON file fails to load.
+
+### Usage in a React Component
+
+```tsx
+import React from "react";
+import { useAtomValue } from "jotai";
+import { conjunctionForecastAtom, useLoadConjunctionData } from "./conjunctionData";
+
+const ConjunctionWarningsDisplay: React.FC = () => {
+  useLoadConjunctionData(); // Load data on component mount
+
+  const conjunctionWarnings = useAtomValue(conjunctionForecastAtom);
+
+  return (
+    <div>
+      <h1>Conjunction Warnings</h1>
+      {conjunctionWarnings.map(warning => (
+        <div key={warning.cdmId}>
+          <p>Satellite 1: {warning.satellite1.name} ({warning.satellite1.objectType})</p>
+          <p>Satellite 2: {warning.satellite2.name} ({warning.satellite2.objectType})</p>
+          <p>Time of Closest Approach: {warning.tca.toISOString()}</p>
+          <p>Minimum Distance: {warning.minDistance} meters</p>
+          <p>Probability: {warning.probability}</p>
+          <hr />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default ConjunctionWarningsDisplay;
+```
+
+--- 
 
 ## **3. Satellite Locations for a Particular Time**
 This collection tracks dynamic data representing satellite positions for a specific time. Since the app allows multiple independent views of timelines, each view needs its own set of satellite positions.
@@ -847,89 +1246,6 @@ npm update
 
 ## d3js intro
 * https://observablehq.com/@mitvis/introduction-to-d3
-
-# Space Track Earth-Orbiting Data Download
-
-The [general perturbations (GP)](https://www.space-track.org/documentation#api-basicSpaceDataGp) class is an efficient listing of the newest SGP4 keplerian element set for each man-made earth-orbiting object tracked by the 18th Space Defense Squadron. It is designed to accommodate the expanded satellite catalog’s 9-digit identifiers. Users can return data in the CCSDS flexible Orbit Mean-Elements Message (OMM) format in canonical XML/KVN, JSON, CSV, or HTML. All 5 of these formats use the same keywords and definitions for OMM as provided in the Orbit Data Messages (ODM) [CCSDS Recommended Standard 502.0-B-3](https://public.ccsds.org/Pubs/502x0b3e1.pdf)
-
-Select catalog numbers below 100,000 are also available in the legacy fixed-width TLE or 3LE format. While the [Alpha-5](https://www.space-track.org/documentation#/tle-alpha5) schema extends the range that the TLE format supports to include numbers up to 339,999, https://Space-Track.org and https://Celestrak.com recommend that developers migrate their software to use the OMM standard for all GP ephemerides. Please see the [Alpha-5 documentation](https://www.space-track.org/documentation#/tle-alpha5) for more on this.
-
-Note: Alpha-5 formatted ELSETs will only be available through the TLE and 3LE formats of the gp and gp_history class.
-
-This class also allows for expanded elset filtering based on additional object metadata from the satellite catalog like:
-radar cross section (RCS_SIZE): Small, Medium, Large
-object type (OBJECT_TYPE): Payload, Rocket Body, Debris, Unknown
-launch site (SITE)
-launch date (LAUNCH_DATE)
-decay date (DECAY_DATE)
-country code (COUNTRY_CODE)
-file identifier for groups uploaded together (FILE)
-unique ephemerides identifier (GP_ID)
-... if such values exist for the object. Note that many analyst satellite objects' catalog numbers above 70,000 do not have much metadata.
-
-Please see all available columns for filtering by viewing the [gp class's model definition](https://www.space-track.org/basicspacedata/modeldef/class/gp/format/html).
-
-Note: Queries made in HTML, JSON, and CSV will contain the TLE lines as fields (TLE_LINE0, TLE_LINE1, TLE_LINE2). The OMM (XML/KVN) formats do not contain these fields in order to save space and eliminate redundancy.
-
-The recommended URL for retrieving the newest propagable element set for all on-orbit objects is:
-https://www.space-track.org/basicspacedata/query/class/gp/decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/json
-
-Each entry in the dataset stores detailed orbital and metadata information for satellites, conforming to the CCSDS OMM standard.
-
----
-
-## **Field Descriptions**
-
-| Field                   | Type                    | Null | Key  | Default | Extra         | Description                                                              |
-|-------------------------|-------------------------|------|------|---------|---------------|--------------------------------------------------------------------------|
-| **CCSDS_OMM_VERS**      | `varchar(3)`           | NO   |      |         |               | Version of the CCSDS OMM standard.                                      |
-| **COMMENT**             | `varchar(33)`          | NO   |      |         |               | Descriptive comment about the data set.                                 |
-| **CREATION_DATE**       | `datetime`             | YES  |      |         |               | Date and time the record was created.                                   |
-| **ORIGINATOR**          | `varchar(7)`           | NO   |      |         |               | Entity responsible for generating the data.                             |
-| **OBJECT_NAME**         | `varchar(25)`          | YES  |      |         |               | Common name of the satellite.                                           |
-| **OBJECT_ID**           | `varchar(12)`          | YES  |      |         |               | Unique identifier for the satellite.                                    |
-| **CENTER_NAME**         | `varchar(5)`           | NO   |      |         |               | Name of the celestial center, typically `EARTH`.                        |
-| **REF_FRAME**           | `varchar(4)`           | NO   |      |         |               | Reference frame, typically `TEME`.                                      |
-| **TIME_SYSTEM**         | `varchar(3)`           | NO   |      |         |               | Time system used, typically `UTC`.                                      |
-| **MEAN_ELEMENT_THEORY** | `varchar(4)`           | NO   |      |         |               | Theory used for mean orbital elements, typically `SGP4`.                |
-| **EPOCH**               | `datetime(6)`          | YES  |      |         |               | Epoch of the orbital elements.                                          |
-| **MEAN_MOTION**         | `decimal(13,8)`        | YES  |      |         |               | Mean motion (revolutions per day).                                      |
-| **ECCENTRICITY**        | `decimal(13,8)`        | YES  |      |         |               | Orbital eccentricity.                                                   |
-| **INCLINATION**         | `decimal(7,4)`         | YES  |      |         |               | Orbital inclination (degrees).                                          |
-| **RA_OF_ASC_NODE**      | `decimal(7,4)`         | YES  |      |         |               | Right ascension of the ascending node (degrees).                        |
-| **ARG_OF_PERICENTER**   | `decimal(7,4)`         | YES  |      |         |               | Argument of perigee (degrees).                                          |
-| **MEAN_ANOMALY**        | `decimal(7,4)`         | YES  |      |         |               | Mean anomaly (degrees).                                                 |
-| **EPHEMERIS_TYPE**      | `tinyint(4)`           | YES  |      | `0`     |               | Ephemeris type indicator.                                               |
-| **CLASSIFICATION_TYPE** | `char(1)`              | YES  |      |         |               | Classification type (`U` for unclassified).                             |
-| **NORAD_CAT_ID**        | `int(10) unsigned`     | NO   |      |         |               | NORAD catalog ID.                                                       |
-| **ELEMENT_SET_NO**      | `smallint(5) unsigned` | YES  |      |         |               | Element set number.                                                     |
-| **REV_AT_EPOCH**        | `mediumint(8) unsigned`| YES  |      |         |               | Revolution number at epoch.                                             |
-| **BSTAR**               | `decimal(19,14)`       | YES  |      |         |               | BSTAR drag term.                                                        |
-| **MEAN_MOTION_DOT**     | `decimal(9,8)`         | YES  |      |         |               | First derivative of mean motion.                                        |
-| **MEAN_MOTION_DDOT**    | `decimal(22,13)`       | YES  |      |         |               | Second derivative of mean motion.                                       |
-| **SEMIMAJOR_AXIS**      | `double(12,3)`         | YES  |      |         |               | Semi-major axis (km).                                                   |
-| **PERIOD**              | `double(12,3)`         | YES  |      |         |               | Orbital period (minutes).                                               |
-| **APOAPSIS**            | `double(12,3)`         | YES  |      |         |               | Apogee altitude (km).                                                   |
-| **PERIAPSIS**           | `double(12,3)`         | YES  |      |         |               | Perigee altitude (km).                                                  |
-| **OBJECT_TYPE**         | `varchar(12)`          | YES  |      |         |               | Type of object (e.g., `PAYLOAD`, `ROCKET BODY`).                        |
-| **RCS_SIZE**            | `char(6)`              | YES  |      |         |               | Radar cross-section size (`SMALL`, `MEDIUM`, `LARGE`).                  |
-| **COUNTRY_CODE**        | `char(6)`              | YES  |      |         |               | Country code of ownership.                                              |
-| **LAUNCH_DATE**         | `date`                | YES  |      |         |               | Launch date of the object.                                              |
-| **SITE**                | `char(5)`              | YES  |      |         |               | Launch site.                                                            |
-| **DECAY_DATE**          | `date`                | YES  |      |         |               | Decay date (if applicable).                                             |
-| **FILE**                | `bigint(20) unsigned`  | YES  |      |         |               | File identifier.                                                        |
-| **GP_ID**               | `int(10) unsigned`    | NO   |      |         |               | Unique identifier for the GP record.                                    |
-| **TLE_LINE0**           | `varchar(27)`          | YES  |      |         |               | TLE line 0 (name of the satellite).                                     |
-| **TLE_LINE1**           | `varchar(71)`          | YES  |      |         |               | TLE line 1 containing orbital elements.                                 |
-| **TLE_LINE2**           | `varchar(71)`          | YES  |      |         |               | TLE line 2 containing orbital elements.                                 |
-
-## **Key Points**
-- The table supports CCSDS OMM standard for orbital metadata.
-- TLE data (line 0, 1, and 2) is stored for compatibility with SGP4 propagation models.
-- Fields like `NORAD_CAT_ID`, `OBJECT_NAME`, and `GP_ID` are critical for uniquely identifying satellites.
-- Orbital parameters (e.g., `ECCENTRICITY`, `INCLINATION`) support accurate orbital calculations.
-
----
 
 # Nx Monorepo Tool
 
