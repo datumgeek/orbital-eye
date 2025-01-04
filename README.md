@@ -14,6 +14,16 @@ A playground for orbital visualizations, calculations, and experiments
   - [Add remote](#add-remote)
   - [@orbital-eye/e01-visualize Docs](#orbital-eyee01-visualize-docs)
   - [@orbital-eye/e02-visualize Docs](#orbital-eyee02-visualize-docs)
+- [Publish orbital-eye App to GitHub Pages](#publish-orbital-eye-app-to-github-pages)
+  - [**1. Prerequisites**](#1-prerequisites)
+  - [**2. Install `gh-pages` Package**](#2-install-gh-pages-package)
+  - [**3. Update Next.js App for Static Export**](#3-update-nextjs-app-for-static-export)
+  - [**4. Add a Deploy Script to `package.json`**](#4-add-a-deploy-script-to-packagejson)
+  - [**5. Set Up GitHub Repository**](#5-set-up-github-repository)
+    - [Create Empty gh-pages branch](#create-empty-gh-pages-branch)
+  - [**6. Build and Deploy to GitHub Pages**](#6-build-and-deploy-to-github-pages)
+  - [**7. Verify Deployment**](#7-verify-deployment)
+  - [**10. (TODO) Automate Deployment**](#10-todo-automate-deployment)
 - [Nx Stuff](#nx-stuff)
   - [Integrate with editors](#integrate-with-editors)
   - [Start the application](#start-the-application)
@@ -102,6 +112,118 @@ Investigate the [Implementation](./libs/orbital-eye/e01-visualize/README.md)
 ## @orbital-eye/e02-visualize Docs
 
 Investigate the [Implementation](./libs/orbital-eye/e02-visualize/README.md)
+
+# Publish orbital-eye App to GitHub Pages
+
+Publishing the orbital-eye Next.js app from an NX monorepo to GitHub Pages involves additional considerations because Next.js apps are dynamic by nature, but they can be exported as static websites using the `next export` command. Below is step-by-step guide:
+
+---
+
+## **1. Prerequisites**
+- Ensure your app is fully static (no server-side processing or services).
+- You have a GitHub repository set up for your project.
+
+---
+
+## **2. Install `gh-pages` Package**
+Install the `gh-pages` package to simplify deployment to GitHub Pages:
+
+```bash
+npm install --save-dev gh-pages
+```
+
+---
+
+## **3. Update Next.js App for Static Export**
+1. Open the `next.config.js` file in your Next.js app directory (`apps/orbital-eye`).
+2. Add the `trailingSlash`, `basePath`, `assetPrefix` and `output` properties to the configuration.
+3. After you publish, comment out the `basePath`, `assetPrefix` and `output` properties for `nx dev orbital-eye` local development
+
+```javascript
+//@ts-check
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { composePlugins, withNx } = require('@nx/next');
+
+/**
+ * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
+ **/
+const nextConfig = {
+  nx: {
+    // Set this to true if you would like to use SVGR
+    // See: https://github.com/gregberge/svgr
+    svgr: false,
+  },
+  trailingSlash: true,
+  // uncomment these for gh-pages deployment
+  basePath: '/orbital-eye',
+  assetPrefix: '/orbital-eye',
+  output: 'export'
+};
+
+const plugins = [
+  // Add more Next.js plugins to this list if needed.
+  withNx,
+];
+
+module.exports = composePlugins(...plugins)(nextConfig);
+```
+
+This ensures the app can be statically exported and hosted under the `/orbital-eye` route of your GitHub Pages site.
+
+---
+
+## **4. Add a Deploy Script to `package.json`**
+Add a `deploy` script to the root `package.json`:
+
+```json
+"scripts": {
+  "deploy": "nx build orbital-eye && gh-pages -d dist/apps/orbital-eye"
+}
+```
+
+---
+
+## **5. Set Up GitHub Repository**
+
+### Create Empty gh-pages branch
+
+```bash
+git checkout --orphan gh-pages
+git reset --hard
+git commit --allow-empty -m "fresh and empty gh-pages branch"
+git push origin gh-pages
+git checkout main
+```
+
+1. Go to your GitHub repository.
+2. Navigate to **Settings > Pages**.
+3. Under **Source**, select `gh-pages` branch.
+4. Save the changes.
+
+---
+
+## **6. Build and Deploy to GitHub Pages**
+Run the deploy script:
+
+```bash
+npm run deploy
+```
+
+This pushes the exported static files to the `gh-pages` branch in your GitHub repository.
+
+---
+
+## **7. Verify Deployment**
+- Go to `https://datumgeek.github.io/orbital-eye/` to view your deployed site.
+- Check that all routes and assets load correctly.
+
+---
+
+## **10. (TODO) Automate Deployment**
+Automate this process using GitHub Actions:
+1. Create a new workflow file at `.github/workflows/deploy.yml`.
+2. Use a workflow that builds, exports, and deploys your Next.js app to GitHub Pages.
 
 # Nx Stuff
 
