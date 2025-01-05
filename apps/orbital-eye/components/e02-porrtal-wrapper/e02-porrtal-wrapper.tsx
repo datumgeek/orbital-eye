@@ -40,6 +40,18 @@ export function E02PorrtalWrapper() {
       componentModule: () => import('@orbital-eye/e02-visualize'),
     },
     {
+      viewId: 'ConjunctionDetails',
+      key: 'ConjunctionDetails {cdmId}',
+      launchAtStartup: false,
+      displayText: '{objectName}',
+      entityTypeMenuText: 'Conjunction Details',
+      paneType: 'main',
+      displayIcon: 'compare_arrows',
+      entityType: 'conjunction',
+      componentName: 'ConjunctionDetails',
+      componentModule: () => import('@orbital-eye/e02-visualize'),
+    },
+    {
       key: 'ProjectInfo',
       launchAtStartup: true,
       displayText: 'Project Info',
