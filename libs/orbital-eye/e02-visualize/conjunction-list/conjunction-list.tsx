@@ -57,7 +57,7 @@ export function ConjunctionList() {
   return (
     <Box padding={2}>
       <Typography variant="h6" gutterBottom>
-        Satellite Data Search ({filteredData.length})
+        Conjunction Search ({filteredData.length})
       </Typography>
       <Box marginBottom={2}>
         <TextField
