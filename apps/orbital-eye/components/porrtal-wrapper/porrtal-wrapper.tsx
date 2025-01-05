@@ -27,26 +27,30 @@ export function PorrtalWrapper() {
       componentModule: () => import("@orbital-eye/e01-visualize"),
     },
   ];
+  const basePath = window.location.pathname.startsWith('/orbital-eye')
+    ? '/orbital-eye'
+    : '';
+
   const porrtalBanner: BannerData = {
-    displayText: "Orbital Eye",
-    displayIcon: "public",
+    displayText: 'Orbital Eye',
+    displayIcon: 'public',
     childData: [
       {
         displayIcon: 'satellite_alt',
         displayText: 'e02 Sample',
-        targetUrl: '/e02'
+        targetUrl: `${basePath}/e02`,
       },
       {
         displayIcon: 'satellite_alt',
         displayText: 'portal Sample',
-        targetUrl: '/portal'
+        targetUrl: `${basePath}/portal`,
       },
       {
         displayIcon: 'satellite_alt',
         displayText: 'Simple Demo',
-        targetUrl: '/'
-      }
-    ]
+        targetUrl: `${basePath}/`,
+      },
+    ],
   };
   return (
     <ShellState views={porrtalViews}>

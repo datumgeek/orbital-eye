@@ -106,6 +106,11 @@ export function E02PorrtalWrapper() {
     //   }
     // }
   ];
+
+  const basePath = window.location.pathname.startsWith('/orbital-eye')
+    ? '/orbital-eye'
+    : '';
+
   const porrtalBanner: BannerData = {
     displayText: 'Orbital Eye',
     displayIcon: 'public',
@@ -113,17 +118,17 @@ export function E02PorrtalWrapper() {
       {
         displayIcon: 'satellite_alt',
         displayText: 'e02 Sample',
-        targetUrl: '/e02',
+        targetUrl: `${basePath}/e02`,
       },
       {
         displayIcon: 'satellite_alt',
         displayText: 'portal Sample',
-        targetUrl: '/portal',
+        targetUrl: `${basePath}/portal`,
       },
       {
         displayIcon: 'satellite_alt',
         displayText: 'Simple Demo',
-        targetUrl: '/',
+        targetUrl: `${basePath}/`,
       },
     ],
   };

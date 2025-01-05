@@ -75,25 +75,26 @@ export const conjunctionForecastAtom = atom<ConjunctionWarning[]>([]);
 
 // React hook to load data from the JSON file into the Jotai atom
 export const useLoadConjunctionData = () => {
-    const setConjunctionWarnings = useSetAtom(conjunctionForecastAtom);
-  
-    useEffect(() => {
-      const loadConjuctionForecastData = async () => {
-        try {
-          const response = await fetch('/data/public-conjunction.json');
-          if (!response.ok) {
-            throw new Error('Failed to fetch conjunction data');
-          }
-          const rawData = await response.json();
-          const transformedData = transformConjunctionData(rawData);
-          setConjunctionWarnings(transformedData);
-        } catch (error) {
-          console.error('Error loading conjunction data:', error);
+  const setConjunctionWarnings = useSetAtom(conjunctionForecastAtom);
+
+  useEffect(() => {
+    const loadConjuctionForecastData = async () => {
+      try {
+        const basePath = window.location.pathname.startsWith('/orbital-eye')
+          ? '/orbital-eye/'
+          : '/';
+        const response = await fetch(`${basePath}data/public-conjunction.json`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch conjunction data');
         }
-      };
-  
-      loadConjuctionForecastData();
-    }, [setConjunctionWarnings]);
-  };
-  
-  
+        const rawData = await response.json();
+        const transformedData = transformConjunctionData(rawData);
+        setConjunctionWarnings(transformedData);
+      } catch (error) {
+        console.error('Error loading conjunction data:', error);
+      }
+    };
+
+    loadConjuctionForecastData();
+  }, [setConjunctionWarnings]);
+};
