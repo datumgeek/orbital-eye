@@ -1,5 +1,5 @@
 import styles from './satellite-search.module.scss';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
 import {
   Box,
@@ -19,14 +19,32 @@ import {
   satelliteDataAtom,
   SatelliteData,
 } from '../jotai-data-host/data/satellite-data';
-import { useDebouncedSearchText } from '@porrtal/r-shell';
+import { UseShellState, useDebouncedSearchText, useSearchAction, useShellState } from '@porrtal/r-shell';
 import { EntityMenu } from '@porrtal/r-shell-material';
+import { paneTypes } from '@porrtal/r-api';
 
 export const SatelliteSearch: React.FC = () => {
   const searchString = useDebouncedSearchText();
   const [satelliteData] = useAtom(satelliteDataAtom);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const shellState = useShellState();
+  const searchAction = useSearchAction();
+  const refPrevShellState = useRef<UseShellState | undefined>(undefined)
+  
+
+  useEffect(() => {
+    if (!shellState || !searchAction || !refPrevShellState.current) {
+      refPrevShellState.current = shellState;
+      return;
+    }
+
+    if (shellState.panes['main'].viewStates.length !== refPrevShellState.current.panes['main'].viewStates.length) {
+      searchAction.closeSearchDialog();
+    }
+
+    refPrevShellState.current = shellState;
+  }, [shellState, searchAction]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
