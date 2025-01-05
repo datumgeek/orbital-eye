@@ -2,6 +2,8 @@
 
 A playground for orbital visualizations, calculations, and experiments
 
+Try it out !! https://datumgeek.github.io/orbital-eye/e02
+
 - [OrbitalEye](#orbitaleye)
   - [Building Orbital Eye](#building-orbital-eye)
   - [Running Orbital Eye Samples](#running-orbital-eye-samples)
@@ -46,6 +48,8 @@ Try it out !!
 [https://datumgeek.github.io/orbital-eye/e02](https://datumgeek.github.io/orbital-eye/e02)
 
 Investigate the [Implementation](./libs/orbital-eye/e02-visualize/README.md)
+
+See the platform: [Comcast "Porrtal" Open Source Project](https://github.com/comcast/porrtal)
 
 <img src="./apps/orbital-eye/public/docs/images/e02-02.png" alt="Orbit Visualizer" width="900">
 
