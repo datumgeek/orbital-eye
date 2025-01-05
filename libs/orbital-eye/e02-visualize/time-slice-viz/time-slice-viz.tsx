@@ -1,6 +1,6 @@
 import styles from './time-slice-viz.module.scss';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, ThreeEvent, useFrame } from '@react-three/fiber';
 import { TextureLoader } from 'three';
 import { OrbitControls, Sphere } from '@react-three/drei';
 import * as satellite from 'satellite.js';
@@ -32,20 +32,30 @@ const SatellitePointCloud = (props: {
 }) => {
   const shellDispatch = useShellDispatch();
 
-  const handleClick = (event: any) => {
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
 
-    // Find the clicked point
-    const index = Math.floor(event.index / 3); // Divide by 3 because each satellite position has x, y, z
-    const satelliteInfo = props.satelliteData[index];
+    // Sort intersections by distanceToRay
+    const sortedIntersections = event.intersections.sort(
+      (a, b) => (a.distanceToRay ?? 0) - (b.distanceToRay ?? 0)
+    );
 
+    // Take the first (closest) intersection
+    const closest = sortedIntersections[0];
+
+    console.log('sorted intersections', sortedIntersections);
+
+    if (!closest || closest.index === undefined) return;
+
+    const index = closest.index; // Get the index of the clicked point
+    // Access intersection to get the point index
+    if (index === undefined) return;
+
+    const satelliteInfo = props.satelliteData[index];
     if (satelliteInfo) {
-      // alert(
-      //   `Satellite Info:\nName: ${satelliteInfo.OBJECT_NAME}\nTLE Line 1: ${satelliteInfo.TLE_LINE1}\nTLE Line 2: ${satelliteInfo.TLE_LINE2}`
-      // );
       shellDispatch({
         type: 'launchView',
-        viewId: 'SatelliteDetails',
+        viewId: 'SatelliteDetailsInNav',
         state: {
           noradCatId: satelliteInfo.NORAD_CAT_ID,
           objectName: satelliteInfo.OBJECT_NAME as string,
@@ -64,7 +74,7 @@ const SatellitePointCloud = (props: {
           itemSize={3}
         />
       </bufferGeometry>
-      <pointsMaterial size={0.05} color="white" />
+      <pointsMaterial size={0.05} sizeAttenuation color="white" />
     </points>
   );
 };

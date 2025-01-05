@@ -40,6 +40,18 @@ export function E02PorrtalWrapper() {
       componentModule: () => import('@orbital-eye/e02-visualize'),
     },
     {
+      viewId: 'SatelliteDetailsInNav',
+      key: 'SatelliteDetailsInNav',
+      launchAtStartup: false,
+      displayText: '{objectName}',
+      entityTypeMenuText: 'Satellite Details',
+      paneType: 'right',
+      displayIcon: 'satellite_alt',
+      entityType: 'satellite',
+      componentName: 'SatelliteDetails',
+      componentModule: () => import('@orbital-eye/e02-visualize'),
+    },
+    {
       viewId: 'ConjunctionDetails',
       key: 'ConjunctionDetails {cdmId}',
       launchAtStartup: false,
