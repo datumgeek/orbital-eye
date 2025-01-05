@@ -1,4 +1,5 @@
-import { atom } from 'jotai';
+import { atom, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
 
 export interface SatelliteData {
   CCSDS_OMM_VERS: string; // Version of the CCSDS OMM standard
@@ -44,3 +45,19 @@ export interface SatelliteData {
 }
 
 export const satelliteDataAtom = atom<SatelliteData[]>([]);
+
+export const useLoadSatelliteData = () => {
+  const setSatelliteData = useSetAtom(satelliteDataAtom);
+  
+  useEffect(() => {
+    const loadSatelliteData = async () => {
+      const basePath = window.location.pathname.startsWith('/orbital-eye')
+        ? '/orbital-eye/'
+        : '/';
+      const response = await fetch(`${basePath}data/satellite-gp.json`);
+      const data = await response.json();
+      setSatelliteData(data);
+    };
+    loadSatelliteData();
+  });
+};
