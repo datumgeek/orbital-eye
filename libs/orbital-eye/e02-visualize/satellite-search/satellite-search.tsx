@@ -1,9 +1,7 @@
-import styles from './satellite-search.module.scss';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
 import {
   Box,
-  TextField,
   Table,
   TableBody,
   TableCell,
@@ -17,11 +15,9 @@ import {
 } from '@mui/material';
 import {
   satelliteDataAtom,
-  SatelliteData,
 } from '../jotai-data-host/data/satellite-data';
 import { UseShellState, useDebouncedSearchText, useSearchAction, useShellState } from '@porrtal/r-shell';
 import { EntityMenu } from '@porrtal/r-shell-material';
-import { paneTypes } from '@porrtal/r-api';
 
 export const SatelliteSearch: React.FC = () => {
   const searchString = useDebouncedSearchText();
@@ -32,7 +28,6 @@ export const SatelliteSearch: React.FC = () => {
   const searchAction = useSearchAction();
   const refPrevShellState = useRef<UseShellState | undefined>(undefined)
   
-
   useEffect(() => {
     if (!shellState || !searchAction || !refPrevShellState.current) {
       refPrevShellState.current = shellState;
