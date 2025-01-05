@@ -23,7 +23,7 @@ const texture = new TextureLoader().load(`${basePath}docs/images/ne1-small.png`)
 const SatellitePointCloud = (props: { positions: Float32Array }) => {
   const [satelliteData] = useAtom(satelliteDataAtom);
 
-  console.log('positions: ', props.positions);
+  // console.log('positions: ', props.positions);
 
   return (
     <points>
@@ -88,7 +88,7 @@ export const TimeSliceViz = () => {
   }, [satelliteData]);
 
 
-  console.log('positions: ', positions);
+  // console.log('positions: ', positions);
   if (!satelliteData || satelliteData.length === 0 || !positions || positions.length === 0) {
     return (<div>loading...</div>);
   }
