@@ -65,6 +65,10 @@ Table of Contents
 - [Views](#views)
   - [project-info](#project-info)
   - [time-slice-viz](#time-slice-viz)
+    - [isBlockedBySphereCalculation](#isblockedbyspherecalculation)
+      - [Explanation of the Distance-to-Line Approach](#explanation-of-the-distance-to-line-approach)
+      - [Code Snippet in TypeScript](#code-snippet-in-typescript)
+      - [How It Works](#how-it-works)
   - [conjunction-list](#conjunction-list)
   - [conjunction-details](#conjunction-details)
   - [satellite-search](#satellite-search)
@@ -737,6 +741,130 @@ The project-info View displays information about the project and will be loaded 
 The time-slice-viz View provides a visualization of satellite positions around the Earth at a given point in time.  A timeline control allows the user to jump to a specific time to update the satellite locations.  Alternatively, the user can put the timeline in play mode which will roll forward in time (updating the satellite locations) at the specified time accelleration parameter.  The user can specify the desired start and stop time for the timeline.  The timeline also displays conjunction data where appropriate.
 
 ![time-slice-viz](../../../apps/orbital-eye/public/docs/images/time-slice-viz.png)
+
+### isBlockedBySphereCalculation
+
+Here's a small **TypeScript** snippet to check if a point \((x_2,y_2,z_2)\) is visible from a camera \((x_1,y_1,z_1)\) or blocked by a sphere at the origin \((0,0,0)\) with radius 6. This uses the common **distance-to-line** approach.
+
+---
+
+#### Explanation of the Distance-to-Line Approach
+
+1. We define the **direction** from the camera to the point:
+   \[
+   \mathbf{V} = \mathbf{P} - \mathbf{C}
+   \]
+2. We want the **closest point** on the infinite line \( \mathbf{C} + t \mathbf{V} \) to the **sphere center** \(\mathbf{S}\). Since \(\mathbf{S} = (0,0,0)\) in your case, we’ll just use \(\mathbf{0}\).
+
+   The param \(t^*\) for that closest point is:
+   \[
+   t^* 
+   = \frac{(\mathbf{S} - \mathbf{C}) \cdot \mathbf{V}}{\mathbf{V} \cdot \mathbf{V}}
+   = \frac{-\mathbf{C} \cdot \mathbf{V}}{\mathbf{V} \cdot \mathbf{V}}
+   \quad\text{(since }\mathbf{S}=\mathbf{0}\text{).}
+   \]
+
+3. Check if \(t^*\) is **within the segment** \([0,1]\). If \(t^*\) is less than 0 or greater than 1, the sphere might still be hit behind or beyond the point, so we’ll handle that by checking distances at the endpoints separately (optional, depending on your scenario). 
+
+4. If \(t^* \in [0,1]\), compute the closest point \(\mathbf{L}(t^*)\) on the line to the sphere center. If the distance from that point to the origin is **less than the sphere radius**, then the line from camera to point **intersects** the sphere ⇒ **blocked**.
+
+5. If no intersection occurs within \([0, 1]\), the line of sight is **clear**.
+
+---
+
+#### Code Snippet in TypeScript
+
+Here’s a compact example. We’ll assume the sphere’s center is always \((0,0,0)\) and the radius is 6, but you can modify easily.
+
+```ts
+interface Vector3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+/**
+ * Checks if the line segment from camera to point is blocked by
+ * a sphere centered at (0, 0, 0) with given radius.
+ */
+function isBlockedBySphere(
+  camera: Vector3,
+  point: Vector3,
+  sphereRadius: number
+): boolean {
+  // Direction vector from camera to point
+  const vx = point.x - camera.x;
+  const vy = point.y - camera.y;
+  const vz = point.z - camera.z;
+
+  // V dot V (magnitude squared of V)
+  const vv = vx * vx + vy * vy + vz * vz;
+
+  // If direction is zero-length, treat as "at same position"? 
+  // Might return blocked or not, depending on your scenario.
+  if (vv === 0) {
+    return false; // No line to test, can't be "blocked" in the usual sense
+  }
+
+  // Param t* for the closest approach to the origin (sphere center)
+  // (S - C) is just (0 - camera.x, 0 - camera.y, 0 - camera.z) = -camera
+  const cx = camera.x;
+  const cy = camera.y;
+  const cz = camera.z;
+  const dotCV = cx * vx + cy * vy + cz * vz; // camera dot direction
+  // but note we want -(camera) dot V, so:
+  const tStar = -dotCV / vv;
+
+  // Function to get a point on the line for parameter t
+  // L(t) = camera + t*V
+  function getLinePoint(t: number) {
+    return {
+      x: camera.x + t * vx,
+      y: camera.y + t * vy,
+      z: camera.z + t * vz,
+    };
+  }
+
+  // Helper to get distance squared from origin
+  function distSqFromOrigin(p: Vector3) {
+    return p.x * p.x + p.y * p.y + p.z * p.z;
+  }
+
+  // 1) If 0 <= tStar <= 1, check the closest point on the segment
+  if (tStar >= 0 && tStar <= 1) {
+    const closest = getLinePoint(tStar);
+    const distSq = distSqFromOrigin(closest);
+    return distSq < sphereRadius * sphereRadius;
+  }
+
+  // 2) If tStar < 0, the closest approach is "behind" the camera,
+  //    so check distance from the camera to the origin
+  if (tStar < 0) {
+    const distSqCamera = distSqFromOrigin(camera);
+    return distSqCamera < sphereRadius * sphereRadius;
+  }
+
+  // 3) If tStar > 1, the closest approach is "beyond" the point,
+  //    so check distance from the point to the origin
+  const distSqPoint = distSqFromOrigin(point);
+  return distSqPoint < sphereRadius * sphereRadius;
+}
+
+// ===== Example usage =====
+const camera: Vector3 = { x: 10, y: 10, z: 10 };
+const point: Vector3 = { x: 2, y: 3, z: 4 };
+const sphereRadius = 6;
+
+const blocked = isBlockedBySphere(camera, point, sphereRadius);
+console.log(blocked ? "Blocked by sphere." : "Visible!"); 
+```
+
+#### How It Works
+
+- We calculate the direction vector \(\mathbf{V}\).  
+- We find the param \(t^*\) for the closest point on the infinite line to the sphere center.  
+- Depending on whether \(t^*\) is in \([0,1]\) or not, we check the relevant endpoint or the midpoint.  
+- If any such closest approach is **within** the sphere’s radius, we conclude that the segment intersects the sphere ⇒ **blocked**.
 
 ## conjunction-list
 
