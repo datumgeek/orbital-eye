@@ -1,7 +1,14 @@
 import styles from './time-slice-viz.module.scss';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, ThreeEvent, useFrame } from '@react-three/fiber';
-import { TextureLoader } from 'three';
+import {
+  ArrowHelper,
+  Mesh,
+  MeshBasicMaterial,
+  SphereGeometry,
+  TextureLoader,
+  Vector3,
+} from 'three';
 import { OrbitControls, Sphere } from '@react-three/drei';
 import * as satellite from 'satellite.js';
 import { useAtom } from 'jotai';
@@ -31,26 +38,96 @@ const SatellitePointCloud = (props: {
   satelliteData: SatelliteData[];
 }) => {
   const shellDispatch = useShellDispatch();
+  const refMouseDownTime = useRef<number | undefined>();
+
+  const EARTH_RADIUS = 6.371; // Earth's radius in your units
+
+  useEffect(() => {
+    const handleMouseDown = () => {
+      refMouseDownTime.current = Date.now();
+    }
+
+    window.addEventListener('mousedown', handleMouseDown);
+
+    return () => {
+      window.removeEventListener('mousedown', handleMouseDown);
+    }
+  }, []);
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
+
+    // only consider it a click (selection) if mouse is down less or equal to 350 ms
+    if (!refMouseDownTime.current || (Date.now() - refMouseDownTime.current > 350)) {
+      return;
+    }
+
     event.stopPropagation();
 
-    // Sort intersections by distanceToRay
-    const sortedIntersections = event.intersections.sort(
-      (a, b) => (a.distanceToRay ?? 0) - (b.distanceToRay ?? 0)
-    );
+    const cameraPosition = event.camera.position; // Camera's position
+    const earthPosition = new Vector3(0, 0, 0); // Assuming Earth is at the origin
 
-    // Take the first (closest) intersection
-    const closest = sortedIntersections[0];
+    // Filter intersections to exclude satellites obscured by the Earth
+    const validIntersections = event.intersections.filter((intersection) => {
+      const pointPosition = intersection.point;
 
-    console.log('sorted intersections', sortedIntersections);
+      // Vector from the Earth center to the satellite point
+      const earthToPoint = new Vector3().subVectors(
+        pointPosition,
+        earthPosition
+      );
+      const cameraToPoint = new Vector3().subVectors(
+        pointPosition,
+        cameraPosition
+      );
+
+      // Check if the point is in front of the Earth relative to the camera
+      const toPoint = new Vector3().subVectors(pointPosition, cameraPosition);
+      const toEarth = new Vector3().subVectors(earthPosition, cameraPosition);
+
+      const isInFront = toPoint.dot(toEarth) > 0;
+
+      // Check if the satellite is outside the Earth's shadow
+      const distanceToEarthCenter = earthToPoint.length();
+      const isOutsideEarth = distanceToEarthCenter > EARTH_RADIUS;
+
+      return isInFront && isOutsideEarth;
+    });
+
+    // Sort by distanceToRay and take the closest valid intersection
+    const closest = validIntersections.sort((a, b) => {
+      if (a.distanceToRay === undefined) {
+        return 0;
+      }
+      if (b.distanceToRay === undefined) {
+        return 1;
+      }
+      return a.distanceToRay - b.distanceToRay;
+    })[0];
 
     if (!closest || closest.index === undefined) return;
 
-    const index = closest.index; // Get the index of the clicked point
-    // Access intersection to get the point index
-    if (index === undefined) return;
+    // Visualize the ray and selected point
+    const scene = event.object.parent; // Assuming the scene is accessible from the clicked object
 
+    if (scene) {
+      // Visualize the ray
+      // const rayHelper = new ArrowHelper(
+      //   event.ray.direction,
+      //   event.ray.origin,
+      //   10, // Length of the arrow
+      //   0xff0000 // Color: red
+      // );
+      // scene.add(rayHelper);
+
+      // Visualize the selected point
+      const pointHelper = new Mesh(
+        new SphereGeometry(0.06), // Small sphere
+        new MeshBasicMaterial({ color: 'red' }) // Green color
+      );
+      pointHelper.position.copy(closest.point);
+      scene.add(pointHelper);
+    }
+    const index = closest.index;
     const satelliteInfo = props.satelliteData[index];
     if (satelliteInfo) {
       shellDispatch({
