@@ -744,7 +744,7 @@ The time-slice-viz View provides a visualization of satellite positions around t
 
 ### isBlockedBySphereCalculation
 
-Here's a small **TypeScript** snippet to check if a point \((x_2,y_2,z_2)\) is visible from a camera \((x_1,y_1,z_1)\) or blocked by a sphere at the origin \((0,0,0)\) with radius 6. This uses the common **distance-to-line** approach.
+Here's a small **TypeScript** snippet to check if a point $(x_2,y_2,z_2)$ is visible from a camera $(x_1,y_1,z_1)$ or blocked by a sphere at the origin $(0,0,0)$ with radius 6. This uses the common **distance-to-line** approach.
 
 ---
 
