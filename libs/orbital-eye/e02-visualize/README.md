@@ -751,30 +751,30 @@ Here's a small **TypeScript** snippet to check if a point \((x_2,y_2,z_2)\) is v
 #### Explanation of the Distance-to-Line Approach
 
 1. We define the **direction** from the camera to the point:
-   \[
+```math
    \mathbf{V} = \mathbf{P} - \mathbf{C}
-   \]
-2. We want the **closest point** on the infinite line \( \mathbf{C} + t \mathbf{V} \) to the **sphere center** \(\mathbf{S}\). Since \(\mathbf{S} = (0,0,0)\) in your case, we’ll just use \(\mathbf{0}\).
+```
+2. We want the **closest point** on the infinite line $( \mathbf{C} + t \mathbf{V} )$ to the **sphere center** $(\mathbf{S})$. Since $(\mathbf{S} = (0,0,0))$ in this case, we’ll just use $(\mathbf{0})$.
 
-   The param \(t^*\) for that closest point is:
-   \[
+   The param $(t^*)$ for that closest point is:
+```math
    t^* 
    = \frac{(\mathbf{S} - \mathbf{C}) \cdot \mathbf{V}}{\mathbf{V} \cdot \mathbf{V}}
    = \frac{-\mathbf{C} \cdot \mathbf{V}}{\mathbf{V} \cdot \mathbf{V}}
    \quad\text{(since }\mathbf{S}=\mathbf{0}\text{).}
-   \]
+```
 
-3. Check if \(t^*\) is **within the segment** \([0,1]\). If \(t^*\) is less than 0 or greater than 1, the sphere might still be hit behind or beyond the point, so we’ll handle that by checking distances at the endpoints separately (optional, depending on your scenario). 
+3. Check if $(t^*)$ is **within the segment** $([0,1])$. If $(t^*)$ is less than 0 or greater than 1, the sphere might still be hit behind or beyond the point, so we’ll handle that by checking distances at the endpoints separately (optional, depending on your scenario). 
 
-4. If \(t^* \in [0,1]\), compute the closest point \(\mathbf{L}(t^*)\) on the line to the sphere center. If the distance from that point to the origin is **less than the sphere radius**, then the line from camera to point **intersects** the sphere ⇒ **blocked**.
+4. If $(t^* \in [0,1])$, compute the closest point $(\mathbf{L}(t^*))$ on the line to the sphere center. If the distance from that point to the origin is **less than the sphere radius**, then the line from camera to point **intersects** the sphere ⇒ **blocked**.
 
-5. If no intersection occurs within \([0, 1]\), the line of sight is **clear**.
+5. If no intersection occurs within $([0, 1])$, the line of sight is **clear**.
 
 ---
 
 #### Code Snippet in TypeScript
 
-Here’s a compact example. We’ll assume the sphere’s center is always \((0,0,0)\) and the radius is 6, but you can modify easily.
+Here’s a compact example. We’ll assume the sphere’s center is always $(0,0,0)$ and the radius is 6, but you can modify easily.
 
 ```ts
 interface Vector3 {
@@ -861,9 +861,9 @@ console.log(blocked ? "Blocked by sphere." : "Visible!");
 
 #### How It Works
 
-- We calculate the direction vector \(\mathbf{V}\).  
-- We find the param \(t^*\) for the closest point on the infinite line to the sphere center.  
-- Depending on whether \(t^*\) is in \([0,1]\) or not, we check the relevant endpoint or the midpoint.  
+- We calculate the direction vector $(\mathbf{V})$.  
+- We find the param $(t^*)$ for the closest point on the infinite line to the sphere center.  
+- Depending on whether $(t^*)$ is in $([0,1])$ or not, we check the relevant endpoint or the midpoint.  
 - If any such closest approach is **within** the sphere’s radius, we conclude that the segment intersects the sphere ⇒ **blocked**.
 
 ## conjunction-list
