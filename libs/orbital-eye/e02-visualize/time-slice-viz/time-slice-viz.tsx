@@ -33,6 +33,65 @@ const Earth = () => {
   );
 };
 
+const isBlockedBySphere = (
+  camera: Vector3,
+  point: Vector3,
+  sphereRadius: number
+): boolean => {
+  // Direction vector from camera to point
+  const vx = point.x - camera.x;
+  const vy = point.y - camera.y;
+  const vz = point.z - camera.z;
+
+  // V dot V (magnitude squared of V)
+  const vv = vx * vx + vy * vy + vz * vz;
+
+  // If direction is zero-length, treat as "at same position"?
+  // Might return blocked or not, depending on your scenario.
+  if (vv === 0) {
+    return false; // No line to test, can't be "blocked" in the usual sense
+  }
+
+  // Param t* for the closest approach to the origin (sphere center)
+  // (S - C) is just (0 - camera.x, 0 - camera.y, 0 - camera.z) = -camera
+  const cx = camera.x;
+  const cy = camera.y;
+  const cz = camera.z;
+  const dotCV = cx * vx + cy * vy + cz * vz; // camera dot direction
+  // but note we want -(camera) dot V, so:
+  const tStar = -dotCV / vv;
+
+  // Function to get a point on the line for parameter t
+  // L(t) = camera + t*V
+  function getLinePoint(t: number) {
+    return new Vector3(camera.x + t * vx, camera.y + t * vy, camera.z + t * vz);
+  }
+
+  // Helper to get distance squared from origin
+  function distSqFromOrigin(p: Vector3) {
+    return p.x * p.x + p.y * p.y + p.z * p.z;
+  }
+
+  // 1) If 0 <= tStar <= 1, check the closest point on the segment
+  if (tStar >= 0 && tStar <= 1) {
+    const closest = getLinePoint(tStar);
+    const distSq = distSqFromOrigin(closest);
+    return distSq < sphereRadius * sphereRadius;
+  }
+
+  // 2) If tStar < 0, the closest approach is "behind" the camera,
+  //    so check distance from the camera to the origin
+  if (tStar < 0) {
+    const distSqCamera = distSqFromOrigin(camera);
+    return distSqCamera < sphereRadius * sphereRadius;
+  }
+
+  // 3) If tStar > 1, the closest approach is "beyond" the point,
+  //    so check distance from the point to the origin
+  const distSqPoint = distSqFromOrigin(point);
+  return distSqPoint < sphereRadius * sphereRadius;
+};
+
 const SatellitePointCloud = (props: {
   positions: Float32Array;
   satelliteData: SatelliteData[];
@@ -45,19 +104,21 @@ const SatellitePointCloud = (props: {
   useEffect(() => {
     const handleMouseDown = () => {
       refMouseDownTime.current = Date.now();
-    }
+    };
 
     window.addEventListener('mousedown', handleMouseDown);
 
     return () => {
       window.removeEventListener('mousedown', handleMouseDown);
-    }
+    };
   }, []);
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
-
     // only consider it a click (selection) if mouse is down less or equal to 350 ms
-    if (!refMouseDownTime.current || (Date.now() - refMouseDownTime.current > 350)) {
+    if (
+      !refMouseDownTime.current ||
+      Date.now() - refMouseDownTime.current > 350
+    ) {
       return;
     }
 
@@ -68,43 +129,26 @@ const SatellitePointCloud = (props: {
 
     // Filter intersections to exclude satellites obscured by the Earth
     const validIntersections = event.intersections.filter((intersection) => {
-      const pointPosition = intersection.point;
+      const satellitePosition = intersection.point;
 
-      // Vector from the Earth center to the satellite point
-      const earthToPoint = new Vector3().subVectors(
-        pointPosition,
-        earthPosition
+      const isBlocked = isBlockedBySphere(
+        cameraPosition,
+        satellitePosition,
+        EARTH_RADIUS
       );
-      const cameraToPoint = new Vector3().subVectors(
-        pointPosition,
-        cameraPosition
-      );
-
-      // Check if the point is in front of the Earth relative to the camera
-      const toPoint = new Vector3().subVectors(pointPosition, cameraPosition);
-      const toEarth = new Vector3().subVectors(earthPosition, cameraPosition);
-
-      const isInFront = toPoint.dot(toEarth) > 0;
-
-      // Check if the satellite is outside the Earth's shadow
-      const distanceToEarthCenter = earthToPoint.length();
-      const isOutsideEarth = distanceToEarthCenter > EARTH_RADIUS;
-
-      return isInFront && isOutsideEarth;
+      return !isBlocked;
     });
 
-    // Sort by distanceToRay and take the closest valid intersection
+    // Sort valid intersections by distance to the ray
     const closest = validIntersections.sort((a, b) => {
-      if (a.distanceToRay === undefined) {
-        return 0;
-      }
-      if (b.distanceToRay === undefined) {
-        return 1;
-      }
+      if (a.distanceToRay === undefined) return 0;
+      if (b.distanceToRay === undefined) return 1;
       return a.distanceToRay - b.distanceToRay;
     })[0];
 
     if (!closest || closest.index === undefined) return;
+
+    const satelliteInfo = props.satelliteData[closest.index];
 
     // Visualize the ray and selected point
     const scene = event.object.parent; // Assuming the scene is accessible from the clicked object
@@ -127,8 +171,7 @@ const SatellitePointCloud = (props: {
       pointHelper.position.copy(closest.point);
       scene.add(pointHelper);
     }
-    const index = closest.index;
-    const satelliteInfo = props.satelliteData[index];
+
     if (satelliteInfo) {
       shellDispatch({
         type: 'launchView',
