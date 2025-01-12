@@ -26,6 +26,14 @@ Try it out !! https://datumgeek.github.io/orbital-eye/e02
   - [**6. Build and Deploy to GitHub Pages**](#6-build-and-deploy-to-github-pages)
   - [**7. Verify Deployment**](#7-verify-deployment)
   - [**10. (TODO) Automate Deployment**](#10-todo-automate-deployment)
+- [Automated Daily Data Updates with GitHub Actions](#automated-daily-data-updates-with-github-actions)
+  - [Overview](#overview)
+  - [Key Features](#key-features)
+  - [How It Works](#how-it-works)
+  - [Workflow File](#workflow-file)
+  - [Setting Up](#setting-up)
+  - [Running the Workflow](#running-the-workflow)
+  - [Security Considerations](#security-considerations)
 - [Nx Stuff](#nx-stuff)
   - [Integrate with editors](#integrate-with-editors)
   - [Start the application](#start-the-application)
@@ -230,6 +238,83 @@ This pushes the exported static files to the `gh-pages` branch in your GitHub re
 Automate this process using GitHub Actions:
 1. Create a new workflow file at `.github/workflows/deploy.yml`.
 2. Use a workflow that builds, exports, and deploys your Next.js app to GitHub Pages.
+
+Here's a suggested section to add to your `README.md`:
+
+---
+
+# Automated Daily Data Updates with GitHub Actions
+
+## Overview
+The repository includes a GitHub Actions workflow that automates the daily download and update of satellite and conjunction data from [space-track.org](https://www.space-track.org). This ensures the latest data is always available in the repository for use in the application.
+
+## Key Features
+- **Daily Updates**: The workflow runs every day at 13:00 UTC.
+- **Authentication**: Uses a secure session cookie obtained via Space-Track login credentials stored in GitHub Secrets.
+- **Dual Branch Updates**:
+  - Updates the `main` branch with the latest data in `apps/orbital-eye/public/data`.
+  - Updates the `gh-pages` branch to sync data in the `data` folder for GitHub Pages.
+
+## How It Works
+1. **Authentication**:
+   - Logs in to Space-Track and saves a session cookie to `cookies.txt`.
+   - The session cookie is used for subsequent data fetches.
+
+2. **Data Fetching**:
+   - Downloads the latest satellite data (`satellite-gp.json`) and conjunction data (`public-conjunction.json`) from Space-Track.
+
+3. **Branch Updates**:
+   - Updates files in the `main` branch for use in the application.
+   - Syncs files to the `data` folder in the `gh-pages` branch for GitHub Pages.
+
+4. **Commit and Push**:
+   - Commits changes only if the downloaded data has been updated.
+   - Pushes the changes to their respective branches.
+
+## Workflow File
+The workflow file is located in `.github/workflows/data-fetch.yml`. Below is a brief outline of its structure:
+
+```yaml
+name: Download JSON Daily
+
+on:
+  schedule:
+    - cron: '0 13 * * *' # Runs daily at 13:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  download-json-file:
+    steps:
+      - Authenticate and obtain session cookie
+      - Download Satellite JSON
+      - Download Conjunction JSON
+      - Commit and push to main branch
+      - Update gh-pages branch
+```
+
+## Setting Up
+1. **Add GitHub Secrets**:
+   - `SPACE_TRACK_USERNAME`: Your Space-Track username.
+   - `SPACE_TRACK_PASSWORD`: Your Space-Track password.
+
+2. **Customize Paths**:
+   - Update file paths in the workflow if your repository structure changes.
+
+3. **Enable GitHub Pages**:
+   - Ensure the `gh-pages` branch is configured as the source for GitHub Pages.
+
+## Running the Workflow
+- **Automatic**: The workflow runs daily based on the defined schedule.
+- **Manual Trigger**: You can manually trigger the workflow from the GitHub Actions tab.
+
+## Security Considerations
+- **Credentials**: Keep the Space-Track credentials secure by using GitHub Secrets.
+- **Session Cookie**: The `cookies.txt` file is not committed to the repository and is used temporarily during the workflow run.
+
+---
 
 # Nx Stuff
 
