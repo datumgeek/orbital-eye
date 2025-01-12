@@ -28,7 +28,7 @@ jobs:
           curl -L 'https://www.space-track.org/basicspacedata/query/class/cdm_public/format/json' \
             --output apps/orbital-eye/public/data/public-conjunction.json
 
-      - name: Commit and push if changed
+      - name: Commit and push if changed (main branch)
         run: |
           # Configure Git
           git config user.name "github-actions"
@@ -44,4 +44,24 @@ jobs:
           else
             git commit -m "chore: update satellite-gp.json and public-conjunction.json"
             git push
+          fi
+
+      - name: Update gh-pages branch
+        run: |
+          # Switch to the gh-pages branch
+          git fetch origin gh-pages
+          git checkout gh-pages
+
+          # Copy updated files to the gh-pages data folder
+          cp apps/orbital-eye/public/data/satellite-gp.json data/satellite-gp.json
+          cp apps/orbital-eye/public/data/public-conjunction.json data/public-conjunction.json
+
+          # Stage, commit, and push changes
+          git add data/satellite-gp.json data/public-conjunction.json
+
+          if git diff --cached --quiet; then
+            echo "No changes in data; skipping commit."
+          else
+            git commit -m "chore: update satellite-gp.json and public-conjunction.json in gh-pages"
+            git push origin gh-pages
           fi
