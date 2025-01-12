@@ -17,6 +17,7 @@ Try it out !!
 
 <img src="../../../apps/orbital-eye/public/docs/images/e02-01.png" alt="Orbit Visualizer" width="900">
 
+<img src="../../../apps/orbital-eye/public/docs/images/e02-05.png" alt="Orbit Visualizer" width="1200">
 <img src="../../../apps/orbital-eye/public/docs/images/e02-03.png" alt="Orbit Visualizer" width="900">
 
 <img src="../../../apps/orbital-eye/public/docs/images/e02-04.png" alt="Orbit Visualizer" width="1800">
