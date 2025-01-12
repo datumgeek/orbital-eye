@@ -18,14 +18,19 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
+      - name: Authenticate and obtain session cookie
+        run: |
+          curl -c cookies.txt -d "identity=${{ secrets.SPACE_TRACK_USERNAME }}&password=${{ secrets.SPACE_TRACK_PASSWORD }}" \
+            https://www.space-track.org/ajaxauth/login
+
       - name: Download Satellite JSON
         run: |
-          curl -L 'https://www.space-track.org/basicspacedata/query/class/gp/decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/json' \
+          curl -b cookies.txt -L 'https://www.space-track.org/basicspacedata/query/class/gp/decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/json' \
             --output apps/orbital-eye/public/data/satellite-gp.json
 
       - name: Download Conjunction JSON
         run: |
-          curl -L 'https://www.space-track.org/basicspacedata/query/class/cdm_public/format/json' \
+          curl -b cookies.txt -L 'https://www.space-track.org/basicspacedata/query/class/cdm_public/format/json' \
             --output apps/orbital-eye/public/data/public-conjunction.json
 
       - name: Commit and push if changed (main branch)
